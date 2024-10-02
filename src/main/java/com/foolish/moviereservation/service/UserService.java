@@ -7,30 +7,28 @@ import com.foolish.moviereservation.repository.UserRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 @AllArgsConstructor
 public class UserService {
   private final UserRepo repo;
   private final UserMapper mapper;
 
-  public List<UserDTO> findUserByUserName(String username) {
-    return repo.findAllByUsername(username).stream().map(mapper::toDTO).toList();
+  public UserDTO findUserByUserName(String username) {
+    return mapper.toDTO(repo.findByUsername(username));
   }
 
-  public List<UserDTO> findAllByEmail(String email) {
-    return repo.findAllByEmail(email).stream().map(mapper::toDTO).toList();
+  public UserDTO findUserEmail(String email) {
+    return mapper.toDTO(repo.findByEmail(email));
   }
 
-  public List<UserDTO> findAllByPhoneNumber(String phoneNumber) {
-    return repo.findAllByPhoneNumber(phoneNumber).stream().map(mapper::toDTO).toList();
+  public UserDTO findUserByPhoneNumber(String phoneNumber) {
+    return mapper.toDTO(repo.findByPhoneNumber(phoneNumber));
   }
 
   public User findByUsername(String username) {
     return repo.findByUsername(username);
   }
-  
+
   public User save(User user) {
     return repo.save(user);
   }

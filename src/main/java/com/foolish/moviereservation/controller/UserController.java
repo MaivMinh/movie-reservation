@@ -29,48 +29,5 @@ public class UserController {
   private final UserMapper userMapper;
   private final RoleService roleService;
 
-  public ResponseEntity<UserDTO> createUser(@RequestBody @Valid User user) {
-    // Hàm tạo một User mới bên trong hệ thống.
-    List<UserDTO> result = null;
-    result = userService.findUserByUserName(user.getUsername());
-    if (result.isEmpty()) {
-      UserDTO userDTO = userMapper.toDTO(user);
-      return ResponseEntity.status(HttpStatus.CREATED).body(userDTO);
-    }
 
-    result = userService.findAllByEmail(user.getEmail());
-    if (result.isEmpty()) {
-      UserDTO userDTO = userMapper.toDTO(user);
-      return ResponseEntity.status(HttpStatus.CREATED).body(userDTO);
-    }
-
-    result = userService.findAllByPhoneNumber(user.getPhoneNumber());
-    if (result.isEmpty()) {
-      UserDTO userDTO = userMapper.toDTO(user);
-      return ResponseEntity.status(HttpStatus.CREATED).body(userDTO);
-    }
-
-    // Set Role cho User. [{1: ADMIN}, {2, USER}]
-    Role role = roleService.findByRoleId(Role.USER);
-    UserRole userRole = new UserRole();
-    userRole.setUser(user);
-    userRole.setRole(role);
-    user.setUserRoles(Collections.singletonList(userRole));
-
-    // Hashing user's password.
-    user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-    try {
-      user = userService.save(user);
-    } catch (RuntimeException e) {
-      log.error("Failed to create user: {}", user.getUsername(), e);
-      return ResponseEntity.internalServerError().body(null);
-    }
-
-    if (user.getUserId() > 0) {
-      UserDTO userDTO = userMapper.toDTO(user);
-      return ResponseEntity.ok(userDTO);
-    }
-    return ResponseEntity.internalServerError().body(null);
-  }
 }

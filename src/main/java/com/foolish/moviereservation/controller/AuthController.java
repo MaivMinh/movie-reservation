@@ -1,9 +1,7 @@
-package com.foolish.moviereservation.auth;
+package com.foolish.moviereservation.controller;
 
 import com.foolish.moviereservation.DTOs.UserDTO;
-import com.foolish.moviereservation.exceptions.ExceptionMessage;
-import com.foolish.moviereservation.exceptions.ResourceAlreadyException;
-import com.foolish.moviereservation.exceptions.ResourceNotFoundException;
+import com.foolish.moviereservation.exceptions.ResourceAlreadyExistedException;
 import com.foolish.moviereservation.mapper.UserMapper;
 import com.foolish.moviereservation.model.Role;
 import com.foolish.moviereservation.model.User;
@@ -13,6 +11,7 @@ import com.foolish.moviereservation.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,15 +39,15 @@ public class AuthController {
     UserDTO result = null;
     result = userService.findUserByUserName(user.getUsername());
     if (result != null)
-      throw new ResourceAlreadyException(RESOURCE_ALREADY_EXISTS.getDescription(), Map.of("username", result.getUsername()));
+      throw new ResourceAlreadyExistedException(HttpStatus.BAD_REQUEST, RESOURCE_ALREADY_EXISTS.getDescription(), Map.of("username", result.getUsername()));
 
     result = userService.findUserEmail(user.getEmail());
     if (result != null)
-      throw new ResourceAlreadyException(RESOURCE_ALREADY_EXISTS.getDescription(), Map.of("email", result.getEmail()));
+      throw new ResourceAlreadyExistedException(HttpStatus.BAD_REQUEST, RESOURCE_ALREADY_EXISTS.getDescription(), Map.of("email", result.getEmail()));
 
     result = userService.findUserByPhoneNumber(user.getPhoneNumber());
     if (result != null)
-      throw new ResourceAlreadyException(RESOURCE_ALREADY_EXISTS.getDescription(), Map.of("phone-number", result.getPhoneNumber()));
+      throw new ResourceAlreadyExistedException(HttpStatus.BAD_REQUEST, RESOURCE_ALREADY_EXISTS.getDescription(), Map.of("phone-number", result.getPhoneNumber()));
 
     // Set Role cho User. [{1: ADMIN}, {2, USER}]
     Role role = roleService.findByRoleId(Role.USER);
@@ -77,6 +76,7 @@ public class AuthController {
 
   @PostMapping("/sign-in")
   public ResponseEntity<UserDTO> signIn(@RequestBody UserDTO userDTO) {
+    
     return ResponseEntity.ok().body(null);
   }
 }

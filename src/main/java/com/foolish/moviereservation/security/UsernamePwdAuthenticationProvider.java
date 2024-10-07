@@ -21,8 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Profile("prod")
 public class UsernamePwdAuthenticationProvider implements AuthenticationProvider {
   private final PasswordEncoder passwordEncoder;
-  private final UserService userService;
-  private final UserRoleService userRoleService;
   private final UserDetailsService detailsService;
 
 

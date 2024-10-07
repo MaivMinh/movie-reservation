@@ -32,6 +32,5 @@ public class User {
   private String avatar;
 
   @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
-  @Column(name = "user_roles")
   private List<UserRole> userRoles;
 }

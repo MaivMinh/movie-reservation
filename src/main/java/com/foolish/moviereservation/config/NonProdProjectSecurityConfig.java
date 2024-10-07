@@ -1,11 +1,10 @@
 package com.foolish.moviereservation.config;
 
-import com.foolish.moviereservation.security.CustomAccessDeniedHandler;
-import com.foolish.moviereservation.security.CustomBasicAuthenticationEntryPoint;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,9 +14,9 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.Collections;
 
+@Profile("!prod")
 @Configuration
-@Profile("prod")
-public class ProjectSecurityConfig {
+public class NonProdProjectSecurityConfig {
   @Bean
   SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.cors(corsConfig -> corsConfig
@@ -33,7 +32,7 @@ public class ProjectSecurityConfig {
                 return config;
               }
             }));
-    http.requiresChannel(config -> config.anyRequest().requiresSecure());
+    http.requiresChannel(config -> config.anyRequest().requiresInsecure());
     http.csrf(config -> config.ignoringRequestMatchers("/api/**"));
     http
             .authorizeHttpRequests(config -> config
@@ -41,8 +40,7 @@ public class ProjectSecurityConfig {
                     .requestMatchers("/api/v1/public/**").permitAll()
                     .requestMatchers("/api/v1/**").authenticated()
                     .requestMatchers("api/v1/admin/**").hasRole("ADMIN"));
-    http.httpBasic(config -> config.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
-    http.exceptionHandling(config -> config.accessDeniedHandler(new CustomAccessDeniedHandler()));
+    http.httpBasic(Customizer.withDefaults());
     return http.build();
   }
 

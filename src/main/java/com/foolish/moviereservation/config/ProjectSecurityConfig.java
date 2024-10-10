@@ -1,5 +1,7 @@
 package com.foolish.moviereservation.config;
 
+import com.foolish.moviereservation.filters.CsrfTokenFilter;
+import com.foolish.moviereservation.handler.SpaCsrfTokenRequestAttributeHandler;
 import com.foolish.moviereservation.security.CustomAccessDeniedHandler;
 import com.foolish.moviereservation.security.CustomBasicAuthenticationEntryPoint;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,16 +12,26 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.Collections;
 
 @Configuration
-@Profile("prod")
 public class ProjectSecurityConfig {
   @Bean
   SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.csrf(config -> config
+            .ignoringRequestMatchers("/api/v1/auth/sign-up")
+            .csrfTokenRequestHandler(new SpaCsrfTokenRequestAttributeHandler())
+            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+    );
+    http.addFilterAfter(new CsrfTokenFilter(), BasicAuthenticationFilter.class);
+
     http.cors(corsConfig -> corsConfig
             .configurationSource(new CorsConfigurationSource() {
               @Override
@@ -33,8 +45,7 @@ public class ProjectSecurityConfig {
                 return config;
               }
             }));
-    http.requiresChannel(config -> config.anyRequest().requiresSecure());
-    http.csrf(config -> config.ignoringRequestMatchers("/api/**"));
+//    http.requiresChannel(config -> config.anyRequest().requiresSecure());
     http
             .authorizeHttpRequests(config -> config
                     .requestMatchers("/api/v1/auth/sign-up").permitAll()
@@ -50,4 +61,6 @@ public class ProjectSecurityConfig {
   PasswordEncoder passwordEncoder() {
     return PasswordEncoderFactories.createDelegatingPasswordEncoder();
   }
+
+
 }

@@ -17,3 +17,24 @@ Reference Documentation: _https://docs.spring.io/spring-security/reference/servl
 4. **_Using CsrfTokenRequestAttributeHandler_**: 
    1. CsrfTokenRequestAttributeHandler giúp cho CsrfToken có sẵn dưới dạng một thuộc tính của HttpServletRequest là "_csrf".
    2. CsrfToken cũng có sẵn dưới dạng thuộc tính của HttpServletRequest CsrfToken.class.getName() => CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+
+
+===================== UsernamePasswordAuthenticationFilter. ======================
+1. _Processes an authentication form submission_. Called AuthenticationProcessingFilter prior to Spring Security 3.0.
+2. _Login forms must present two parameters to this filter: a username and password._ The default parameter names to use are contained in the static fields SPRING_SECURITY_FORM_USERNAME_KEY and SPRING_SECURITY_FORM_PASSWORD_KEY. The parameter names can also be changed by setting the usernameParameter and passwordParameter properties. 
+3. This filter by default responds to the **_URL /login._**
+
+===================== IMPLEMENTS SECURITY BY USING JWT TOKEN. ======================
+1. Để triển khai thành công Security sử dụng JWT Token chúng ta cần:
+   1. Tạo ra 2 Filters quan trọng là: JwtTokenGeneratorFilter(thực thi phía sau **_BasicAuthenticationFilter_**) và **_JwtTokenValidatorFilter_** thực hiện đối với các Role cần xác thực.
+   2. Filter **_JwtTokenGeneratorFilter_** chỉ áp dụng trong trường hợp Client sử dụng Basic Authorization header. Bởi vì khi đó, BasicAuthentication mới thực thi và JwtToken... sẽ được gọi ngay sau đó.
+   3. Đối với việc xác thực thông qua API /login. Thì chúng ta phải làm theo cách khác đối với tiêu chuẩn thông thường. Cho  phép permitAll() với /login. Sau đó tạo ra @Bean AuthenticationManager và authenticate thủ công Authentication object.
+2. BasicAuthenticationFilter chịu trách nhiệm cho việc xử lý bất kỳ request nào có header là Authorization với authentication scheme là Basic và một base64e encode (username:password) theo sau. Đây là kiểu xác thực cổ điển nhất, nó yêu cầu username:password phải bắt buộc có trong Basic Authorization header.
+3. **_BasicAuthenticationFilter_**:
+   1. Processes a HTTP request's BASIC authorization headers, putting the result into the **_SecurityContextHolder_**.
+   2. If authentication is successful, the resulting Authentication object will be placed into the SecurityContextHolder.
+   3. If authentication fails and ignoreFailure is false (the default), an **_AuthenticationEntryPoint_** implementation is called (unless the ignoreFailure property is set to true). Usually this should be _**BasicAuthenticationEntryPoint**_, _which will prompt the user to authenticate again via BASIC authentication._
+   4. In summary, this filter is responsible for processing any request that has a HTTP request header of _Authorization_ with an authentication scheme of _Basic_ and a _Base64-encoded username:password token_. For example, to authenticate user "Aladdin" with password "open sesame" the following header would be presented:
+      _Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
+
+4. Chúng ta không thể sử dụng standard flow khi có endpoint POST /login bởi vì nếu dùng thì endpoint này sẽ phải dùng các Provider được định nghĩa sẵn của Manager trước đó và không thể tạo ra JWT Token được. Còn nếu suy nghĩ đến việc điều chỉnh hàm authenticate() của UsernamePwdAuthenticationProvider cũng là không thể bởi vì hàm này chỉ chấp nhận một tham số là Authenticate và cũng chỉ trả về một object là Authenticate.

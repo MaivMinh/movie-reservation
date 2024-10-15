@@ -2,6 +2,7 @@ package com.foolish.moviereservation.security;
 
 import com.foolish.moviereservation.service.UserRoleService;
 import com.foolish.moviereservation.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
@@ -18,25 +19,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Slf4j
 @Configuration
 @AllArgsConstructor
-@Profile("prod")
 public class UsernamePwdAuthenticationProvider implements AuthenticationProvider {
-  private final PasswordEncoder passwordEncoder;
   private final UserDetailsService detailsService;
-
+  private final PasswordEncoder passwordEncoder;
 
   @Override
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
     // Hàm thực hiện xác thực {username, password} của User khi thực hiện Sign-In.
     String username = authentication.getName();
-    String rawPassword = authentication.getPrincipal().toString();
-
+    String rawPassword = authentication.getCredentials().toString();
     try {
       UserDetails userDetails = detailsService.loadUserByUsername(username);
       boolean isMatched = passwordEncoder.matches(rawPassword, userDetails.getPassword());
       if (isMatched) {
         return new UsernamePasswordAuthenticationToken(username, userDetails.getPassword(), userDetails.getAuthorities());
+      } else {
+        log.info("PASSWORD DOESN'T MATCH!");
+        return new UsernamePasswordAuthenticationToken(username, rawPassword);
       }
-      return new UsernamePasswordAuthenticationToken(username, rawPassword);
+
     } catch (UsernameNotFoundException e1) {
       log.error(e1.getMessage());
       throw e1;

@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
@@ -15,7 +16,8 @@ public class CustomBasicAuthenticationEntryPoint implements AuthenticationEntryP
   public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
     String timeStamp = LocalDateTime.now().toString();
     String message = (authException != null && authException.getMessage() != null) ? authException.getMessage() : "Unauthorized";
-    String path = request.getRequestURI();
+    String path = request.getServletPath();
+    System.out.println(path);
     response.setStatus(HttpStatus.UNAUTHORIZED.value());
     response.setContentType("application/json");
     response.setHeader("application-error-reason", "Authentication failed");

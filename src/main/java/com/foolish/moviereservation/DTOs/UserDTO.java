@@ -7,6 +7,7 @@ import java.sql.Date;
 @Getter
 @Setter
 public class UserDTO {
+  private Integer userId;
   private String username;
   private String phoneNumber;
   private String email;

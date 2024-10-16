@@ -38,3 +38,4 @@ Reference Documentation: _https://docs.spring.io/spring-security/reference/servl
       _Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
 
 4. Chúng ta không thể sử dụng standard flow khi có endpoint POST /login bởi vì nếu dùng thì endpoint này sẽ phải dùng các Provider được định nghĩa sẵn của Manager trước đó và không thể tạo ra JWT Token được. Còn nếu suy nghĩ đến việc điều chỉnh hàm authenticate() của UsernamePwdAuthenticationProvider cũng là không thể bởi vì hàm này chỉ chấp nhận một tham số là Authenticate và cũng chỉ trả về một object là Authenticate.
+5. Khi chúng ta generate 1 Cookie object thì hãy lưu ý tới hàm .path("endpoint"). Vì chúng ta phải định nghĩ domain nào mà chúng ta muốn sử dụng Cookie này. Ví dụ nếu path("/api/v1/admin") thì chắc chắn là Cookie này sẽ không xuất hiện trong "/api/v1/users".

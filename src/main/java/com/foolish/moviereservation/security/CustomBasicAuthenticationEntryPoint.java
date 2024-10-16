@@ -17,7 +17,6 @@ public class CustomBasicAuthenticationEntryPoint implements AuthenticationEntryP
     String timeStamp = LocalDateTime.now().toString();
     String message = (authException != null && authException.getMessage() != null) ? authException.getMessage() : "Unauthorized";
     String path = request.getServletPath();
-    System.out.println(path);
     response.setStatus(HttpStatus.UNAUTHORIZED.value());
     response.setContentType("application/json");
     response.setHeader("application-error-reason", "Authentication failed");

@@ -33,7 +33,7 @@ public class GlobalExceptionsHandling {
 
   @ExceptionHandler({RuntimeException.class})
   public ResponseEntity<ExceptionResponse> handleRuntimeException(RuntimeException exception) {
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(new ExceptionResponse(exception.getMessage(), null));
   }
 }

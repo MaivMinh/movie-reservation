@@ -32,4 +32,8 @@ public class UserService {
   public User save(User user) {
     return repo.save(user);
   }
+
+  public User findByUserId(Integer userId) {
+    return repo.findByUserId(userId);
+  }
 }

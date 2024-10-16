@@ -55,6 +55,7 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter {
         String username = claims.get("username").toString();
         String authorities = String.valueOf(claims.get("authorities"));
         Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, AuthorityUtils.commaSeparatedStringToAuthorityList(authorities));
+        //Thêm authenticated object vào SecurityContextHolder.
         SecurityContextHolder.getContext().setAuthentication(authentication);
       } catch (ExpiredJwtException e) {
         throw new BadCredentialsException("Expired JWT token");
@@ -69,6 +70,6 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter {
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-    return (request.getServletPath().equals("/api/v1/auth/signup") || request.getServletPath().equals("/api/v1/auth/login"));
+    return (request.getServletPath().equals("/api/v1/auth/signup") || request.getServletPath().equals("/api/v1/auth/login") || request.getServletPath().equals("/api/v1/auth/refreshToken"));
   }
 }

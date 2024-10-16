@@ -29,14 +29,13 @@ public class UserController {
   // Hàm lấy thông tin của User sau khi login thành công.
   @GetMapping("/{userId}")
   public ResponseEntity<UserDTO> getUserDetails(@PathVariable Integer userId, Authentication authentication) {
-    User user = userService.findByUserId(userId);
-    if (user == null || user.getUserId() <= 0)  {
+    UserDTO dto = userService.findByUserId(userId);
+    if (dto == null || dto.getUserId() <= 0)  {
       return ResponseEntity.notFound().build();
     }
-    if (!user.getUsername().equals(authentication.getName())) {
+    if (!dto.getUsername().equals(authentication.getName())) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
-    UserDTO dto = userMapper.toDTO(user);
     return ResponseEntity.ok(dto);
   }
 }

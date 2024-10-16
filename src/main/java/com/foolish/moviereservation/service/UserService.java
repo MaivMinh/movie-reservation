@@ -5,6 +5,7 @@ import com.foolish.moviereservation.mapper.UserMapper;
 import com.foolish.moviereservation.model.User;
 import com.foolish.moviereservation.repository.UserRepo;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,7 +18,7 @@ public class UserService {
     return mapper.toDTO(repo.findByUsername(username));
   }
 
-  public UserDTO findUserEmail(String email) {
+  public UserDTO findUserByEmail(String email) {
     return mapper.toDTO(repo.findByEmail(email));
   }
 
@@ -25,6 +26,7 @@ public class UserService {
     return mapper.toDTO(repo.findByPhoneNumber(phoneNumber));
   }
 
+  // Không được xoá vì sẽ ảnh hưởng tới OwnUserDetailsService class.
   public User findByUsername(String username) {
     return repo.findByUsername(username);
   }
@@ -33,7 +35,7 @@ public class UserService {
     return repo.save(user);
   }
 
-  public User findByUserId(Integer userId) {
-    return repo.findByUserId(userId);
+  public UserDTO findByUserId(Integer userId) {
+    return mapper.toDTO(repo.findByUserId(userId));
   }
 }

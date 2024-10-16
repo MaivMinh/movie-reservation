@@ -64,15 +64,15 @@ public class AuthController {
     UserDTO result = null;
     result = userService.findUserByUserName(user.getUsername());
     if (result != null)
-      throw new ResourceAlreadyExistedException(HttpStatus.BAD_REQUEST, RESOURCE_ALREADY_EXISTS.getDescription(), Map.of("username", result.getUsername()));
+      throw new ResourceAlreadyExistedException(HttpStatus.BAD_REQUEST, RESOURCE_ALREADY_EXISTS.getDescription(), Map.of("username", user.getUsername()));
 
-    result = userService.findUserEmail(user.getEmail());
+    result = userService.findUserByEmail(user.getEmail());
     if (result != null)
-      throw new ResourceAlreadyExistedException(HttpStatus.BAD_REQUEST, RESOURCE_ALREADY_EXISTS.getDescription(), Map.of("email", result.getEmail()));
+      throw new ResourceAlreadyExistedException(HttpStatus.BAD_REQUEST, RESOURCE_ALREADY_EXISTS.getDescription(), Map.of("email", user.getEmail()));
 
     result = userService.findUserByPhoneNumber(user.getPhoneNumber());
     if (result != null)
-      throw new ResourceAlreadyExistedException(HttpStatus.BAD_REQUEST, RESOURCE_ALREADY_EXISTS.getDescription(), Map.of("phone-number", result.getPhoneNumber()));
+      throw new ResourceAlreadyExistedException(HttpStatus.BAD_REQUEST, RESOURCE_ALREADY_EXISTS.getDescription(), Map.of("phone-number", user.getPhoneNumber()));
 
     // Set Role cho User. [{1: ADMIN}, {2, USER}]
     Role role = roleService.findByRoleId(Role.USER);

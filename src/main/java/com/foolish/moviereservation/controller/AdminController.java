@@ -19,13 +19,4 @@ public class AdminController {
   private final UserService userService;
   private final UserMapper userMapper;
 
-
-  @GetMapping("")
-  public ResponseEntity<UserDTO> getAdminDetails(Authentication authentication) {
-    String username = authentication.getName();
-    User user = userService.findByUsername(username);
-    UserDTO userDTO = userMapper.toDTO(user);
-    return ResponseEntity.ok(userDTO);
-  }
-
 }

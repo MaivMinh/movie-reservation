@@ -6,6 +6,7 @@ import com.foolish.moviereservation.model.UserRole;
 import com.foolish.moviereservation.service.UserRoleService;
 import com.foolish.moviereservation.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -28,8 +30,8 @@ public class OwnUserDetailsService implements UserDetailsService {
     if (user != null && user.getUserId() > 0) {
       List<UserRole> userRoles = userRoleService.findAllByUser(user);
       List<Role> roles = userRoles.stream().map(UserRole::getRole).toList();
-      List<SimpleGrantedAuthority> authorities = roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).toList();
-      return new org.springframework.security.core.userdetails.User(username,user.getPassword(), authorities);
+      List<GrantedAuthority> authorities = roles.stream().map(authority -> new SimpleGrantedAuthority(authority.getName())).collect(Collectors.toList());
+      return new org.springframework.security.core.userdetails.User(username, user.getPassword(), authorities);
     }
     throw new UsernameNotFoundException("Failed to load user by username");
   }

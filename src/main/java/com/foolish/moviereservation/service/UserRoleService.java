@@ -19,6 +19,7 @@ public class UserRoleService {
   }
 
   public UserRole save(UserRole userRole) {
+    if (userRole.getUser() == null || userRole.getRole() == null) throw new IllegalArgumentException("User and Role are required");
     return repo.save(userRole);
   }
 

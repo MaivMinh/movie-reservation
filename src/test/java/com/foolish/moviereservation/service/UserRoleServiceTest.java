@@ -182,4 +182,5 @@ class UserRoleServiceTest {
     assertEquals(list.get(0).getRole(), result.get(0).getRole());
     verify(userRoleRepo, times(1)).findAllByUser(user);
   }
+  
 }

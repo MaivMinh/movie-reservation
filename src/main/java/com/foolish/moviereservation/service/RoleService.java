@@ -3,6 +3,7 @@ package com.foolish.moviereservation.service;
 import com.foolish.moviereservation.model.Role;
 import com.foolish.moviereservation.repository.RoleRepo;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service

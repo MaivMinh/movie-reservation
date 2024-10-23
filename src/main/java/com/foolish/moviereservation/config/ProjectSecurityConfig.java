@@ -61,7 +61,7 @@ public class ProjectSecurityConfig {
             .authorizeHttpRequests(config -> config
                     .requestMatchers("/api/v1/auth/signup", "/api/v1/auth/login", "/api/v1/auth/refreshToken").permitAll()
                     .requestMatchers("api/v1/admin/**").hasAuthority("ADMIN")
-                    .requestMatchers("api/v1/user/**").hasAuthority("USER")
+                    .requestMatchers("api/v1/users/**").hasAuthority("USER")
                     .requestMatchers("/api/v1/public/**").permitAll()
                     .anyRequest().authenticated());
     http.httpBasic(config -> config.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));

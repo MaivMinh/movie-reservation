@@ -20,13 +20,14 @@ public class CustomBasicAuthenticationEntryPoint implements AuthenticationEntryP
     response.setStatus(HttpStatus.UNAUTHORIZED.value());
     response.setContentType("application/json");
     response.setHeader("application-error-reason", "Authentication failed");
-    String jsonResponse = String.format("{" +
-            "\"timestamp\":" + "\"%s\"\n" +
-            "\t\"status\":" + "\"%s\"\n" +
-            "\t\"error\":" + "\"%s\"\n" +
-            "\t\"message\":" + "\"%s\"\n" +
-            "\t\"path\":" + "\"%s\"\n" +
-            "}", timeStamp, HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase(), message, path);
+    String jsonResponse = String.format("""
+            {
+            \t"timestamp":"%s"
+            \t"status":"%s"
+            \t"error":"%s"
+            \t"message":"%s"
+            \t"path":"%s"
+            }""", timeStamp, HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase(), message, path);
     response.getWriter().write(jsonResponse);
   }
 }

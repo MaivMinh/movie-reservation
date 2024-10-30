@@ -13,13 +13,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Slf4j
-//@Configuration
+@Configuration
 @AllArgsConstructor
-@Profile("!prod")
+@Profile(value = "!prod")
 public class NonProdUsernamePwdAuthenticationProvider implements AuthenticationProvider {
   private final UserDetailsService userDetailsService;
-  private final PasswordEncoder passwordEncoder;
-
 
   @Override
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {

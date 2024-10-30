@@ -39,3 +39,12 @@ Reference Documentation: _https://docs.spring.io/spring-security/reference/servl
 
 4. Chúng ta không thể sử dụng standard flow khi có endpoint POST /login bởi vì nếu dùng thì endpoint này sẽ phải dùng các Provider được định nghĩa sẵn của Manager trước đó và không thể tạo ra JWT Token được. Còn nếu suy nghĩ đến việc điều chỉnh hàm authenticate() của UsernamePwdAuthenticationProvider cũng là không thể bởi vì hàm này chỉ chấp nhận một tham số là Authenticate và cũng chỉ trả về một object là Authenticate.
 5. Khi chúng ta generate 1 Cookie object thì hãy lưu ý tới hàm .path("endpoint"). Vì chúng ta phải định nghĩ domain nào mà chúng ta muốn sử dụng Cookie này. Ví dụ nếu path("/api/v1/admin") thì chắc chắn là Cookie này sẽ không xuất hiện trong "/api/v1/users".
+
+
+=================== WRITE UNIT TESTING =========================
+1. Khi thực hiện viết unit test với Controller layer. Nên nhớ phải thêm 2 Annotations là @SpringBootTest @AutoConfigureMockMvc. @AutoConfigureMockMvc có mục đích là tự động cấu hình cho MockMvc nên chúng ta không cần phải thực hiện cấu hình thủ công cho nó.
+2. Mục đích của MockMvc là nó sẽ mô phỏng lại một HTTP request và sau đó gửi tới cho Server. Bên trong request này cũng sẽ có các phần như Header, Cookies....
+
+
+=================== NÊN ĐẶT JWTTOKENVALIDATORFILTER Ở ĐÂU.======================
+reference: https://stackoverflow.com/questions/59302026/spring-security-why-adding-the-jwt-filter-before-usernamepasswordauthenticatio

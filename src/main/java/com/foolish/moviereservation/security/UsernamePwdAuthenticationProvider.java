@@ -20,7 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @AllArgsConstructor
 public class UsernamePwdAuthenticationProvider implements AuthenticationProvider {
-  private final UserDetailsService detailsService;
+  private final OwnUserDetailsService detailsService;
   private final PasswordEncoder passwordEncoder;
 
   @Override

@@ -8,7 +8,8 @@ import com.foolish.moviereservation.model.Token;
 import com.foolish.moviereservation.model.User;
 import com.foolish.moviereservation.model.UserRole;
 import com.foolish.moviereservation.records.LoginRequest;
-import com.foolish.moviereservation.records.LoginResponse;
+import com.foolish.moviereservation.response.ResponseData;
+import com.foolish.moviereservation.response.ResponseError;
 import com.foolish.moviereservation.service.RefreshTokenService;
 import com.foolish.moviereservation.service.RoleService;
 import com.foolish.moviereservation.service.TokenService;
@@ -24,7 +25,6 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -60,7 +60,7 @@ public class AuthController {
   private final TokenService tokenService;
 
   @PostMapping("/signup")
-  public ResponseEntity<UserDTO> signUp(@RequestBody @Valid User user) {
+  public ResponseEntity<ResponseData> signUp(@RequestBody @Valid User user) {
     // Hàm tạo một User mới bên trong hệ thống.
     UserDTO result = null;
     result = userService.findUserByUserName(user.getUsername());
@@ -89,25 +89,25 @@ public class AuthController {
       user = userService.save(user);
     } catch (RuntimeException e) {
       log.error("Failed to create user: {}", user.getUsername(), e);
-      return ResponseEntity.internalServerError().body(null);
+      return ResponseEntity.ok().body(new ResponseError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to create user"));
     }
 
     if (user.getUserId() > 0) {
       UserDTO userDTO = userMapper.toDTO(user);
-      return ResponseEntity.ok(userDTO);
+      return ResponseEntity.status(HttpStatus.OK).body(new ResponseData(HttpStatus.CREATED.value(), "Created successfully", userDTO));
     }
-    return ResponseEntity.internalServerError().body(null);
+    return ResponseEntity.ok().body(new ResponseError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to create user"));
   }
 
   @PostMapping("/login")
-  public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+  public ResponseEntity<ResponseData> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
     String jwt = "";
     String refreshToken = "";
-    Authentication authentication = UsernamePasswordAuthenticationToken.unauthenticated(loginRequest.username(),  // Mục đích là tạo ra một token chưa authenticated để cho Provider có thể authenticate sau này.
-            loginRequest.password());
+    Authentication authentication = UsernamePasswordAuthenticationToken.unauthenticated(loginRequest.username(), loginRequest.password());
     Authentication authenticationResponse = authenticationManager.authenticate(authentication); // Thực hiện authenticate bằng cách dùng @Bean Manager đã tạo trong ProjectConfigSecurity để xác thực.
     // Lưu ý: Chúng ta không thể sử dụng standard flow bởi vì nếu dùng thì /login endpoint này sẽ phải dùng các Provider được định nghĩa sẵn của Manager trước đó và không thể tạo ra JWT Token được. Còn nếu suy nghĩ đến việc điều chỉnh hàm authenticate của UsernamePwdAuthenticationProvider cũng là không thể bởi vì hàm này chỉ chấp nhận một tham số là Authenticate và cũng chỉ trả về một object là Authenticate.
 
+    UserDTO dto = null;
     if (null != authenticationResponse && authenticationResponse.isAuthenticated()) {
       if (null != env) {
         // Thực hiện việc tạo access-token và refresh-token.
@@ -132,17 +132,21 @@ public class AuthController {
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + 604800000))
                 .signWith(secretKey).compact();
+
+        // Map User -> UserDTO.
+        User user = userService.findByUsername(username);
+        dto = userMapper.toDTO(user);
       } else log.error("COULD NOT FIND ENVIRONMENT VARIABLE!");
     } else {
-      log.error("USER ISN'T AUTHENTICATED!");
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse(HttpStatus.UNAUTHORIZED.getReasonPhrase(), "Invalid user's credentials!"));
+      log.error("UNAUTHENTICATED USER!");
+      return ResponseEntity.status(200).body(new ResponseError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase()));
     }
 
     // Thống nhất là sẽ chỉ gửi access-token và refresh-token ở cookies. access-token sẽ có thời hạn là 7 days, refresh-token là 15 days.
     ResponseCookie accessCookie = ResponseCookie.from("access_token").value(jwt).httpOnly(true).path("/api/v1").maxAge(604800).build();
     ResponseCookie refreshCookie = ResponseCookie.from("refresh_token").value(refreshToken).httpOnly(true).path("/api/v1").maxAge(1296000).build();
 
-    return ResponseEntity.ok().header("Set-Cookie", accessCookie.toString()).header("Set-Cookie", refreshCookie.toString()).body(new LoginResponse(HttpStatus.OK.getReasonPhrase(), "Login successfully!"));
+    return ResponseEntity.ok().header("Set-Cookie", accessCookie.toString()).header("Set-Cookie", refreshCookie.toString()).body(new ResponseData(HttpStatus.OK.value(), "Login successfully", dto));
   }
 
 

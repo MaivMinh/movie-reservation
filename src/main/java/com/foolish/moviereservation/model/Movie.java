@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.sql.Date;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -13,7 +16,8 @@ import java.sql.Date;
 public class Movie {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Integer movieId;
+  @Column(name = "movie_id")
+  private Integer id;
 
   @NotNull
   private String name;
@@ -26,4 +30,7 @@ public class Movie {
   private Date releaseDate;
   private Double voteAverage;
   private Integer voteCount;
+
+  @OneToMany(mappedBy = "movie", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, targetEntity = MovieGenre.class)
+  private Set<MovieGenre> movieGenres;
 }

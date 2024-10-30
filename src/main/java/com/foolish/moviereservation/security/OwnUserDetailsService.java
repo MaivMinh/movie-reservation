@@ -6,6 +6,7 @@ import com.foolish.moviereservation.model.UserRole;
 import com.foolish.moviereservation.service.UserRoleService;
 import com.foolish.moviereservation.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -31,7 +31,7 @@ public class OwnUserDetailsService implements UserDetailsService {
     if (user != null && user.getUserId() > 0) {
       List<UserRole> userRoles = userRoleService.findAllByUser(user);
       List<Role> roles = userRoles.stream().map(UserRole::getRole).toList();
-      List<GrantedAuthority> authorities = roles.stream().map(authority -> new SimpleGrantedAuthority(authority.getName())).collect(Collectors.toList());
+      List<GrantedAuthority> authorities = roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName())).collect(Collectors.toList());
       return new org.springframework.security.core.userdetails.User(username, user.getPassword(), authorities);
     }
     throw new UsernameNotFoundException("Failed to load user by username");

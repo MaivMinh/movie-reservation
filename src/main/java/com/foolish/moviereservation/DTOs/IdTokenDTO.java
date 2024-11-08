@@ -5,6 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RoleDTO {
-  private String name;
+public class IdTokenDTO {
+  private String token;
 }

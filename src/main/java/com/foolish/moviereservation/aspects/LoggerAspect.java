@@ -35,13 +35,9 @@ public class LoggerAspect {
     return returnObj;
   }
 
-
   // Phương thức này giúp Developer nắm rõ hơn về lỗi đã được throw ra trước đó. Chỉ có tác dụng với Dev, User không nhận được thông báo này.
   @AfterThrowing(value = "springBeanPointCut()", throwing = "e")
   public void logException(JoinPoint joinPoint, Exception e) {
-    String methodName = joinPoint.getSignature().getName();
-    String className = joinPoint.getTarget().getClass().getName();
-    log.error("Exception occurred in method: " + className + "." + methodName + "(...) due to: " + e.getMessage());
+    e.printStackTrace();
   }
-
 }

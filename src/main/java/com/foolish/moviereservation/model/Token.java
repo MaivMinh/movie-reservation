@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.security.Principal;
 import java.sql.Timestamp;
 
 @Entity
@@ -19,6 +20,7 @@ public class Token {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer tokenId;
   private String token;
+  private String jwt;
   private String username;
   private Timestamp validUntil;
 }

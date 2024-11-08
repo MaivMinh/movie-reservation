@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 import java.util.Map;
 
@@ -13,7 +14,6 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AbstractException extends RuntimeException{
-  private HttpStatus status;
   private String message;
   private Map<String, String> details;
 }

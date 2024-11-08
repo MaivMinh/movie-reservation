@@ -48,3 +48,18 @@ Reference Documentation: _https://docs.spring.io/spring-security/reference/servl
 
 =================== NÊN ĐẶT JWTTOKENVALIDATORFILTER Ở ĐÂU.======================
 reference: https://stackoverflow.com/questions/59302026/spring-security-why-adding-the-jwt-filter-before-usernamepasswordauthenticatio
+
+
+
+=================== LUỒNG HOẠT ĐỘNG ĐẦY ĐỦ CỦA OAUTH2.0 AUTHORIZATION GRANT TYPE FLOW. ==========================
+TRANG WEB THAM KHẢO FLOW: https://www.oauth.com/playground
+DOCUMENT cho việc thực hiện các bước trong flow: https://developers.google.com/identity/protocols/oauth2/web-server
+1. <img src="" />
+2. Các tác nhn bên trong hệ thống bao gồm: 
+   1. User: Người dùng.
+   2. Client: Client app - SPA(React, Angular...).
+   3. Auth server: Google, GitHub, Facebook....
+   4. Resource server: Nơi lưu dữ liệu của người dùng. 
+   
+-> **_Có 1 lưu ý cực kì quan trọng: Sau khi kết thúc flow này, cái chúng ta có sẽ là ID Token(Google) hoặc Access Token(GitHub, Facebook). Thì chúng ta sẽ gửi các token này cho Spring Boot Server. Spring Server sẽ thực hiện tìm kiếm user dưới DB, nếu có thì trả về access_token + refresh_token theo flow chung của hệ thống(được áp dụng cho cả username/password login). Nếu người dùng chưa có thì tạo ra người dùng mới rồi sau đó mới trả về 2 token. _**
+   

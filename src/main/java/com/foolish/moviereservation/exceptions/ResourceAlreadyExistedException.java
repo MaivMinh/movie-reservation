@@ -7,8 +7,8 @@ import java.util.Map;
 
 @NoArgsConstructor
 public class ResourceAlreadyExistedException extends AbstractException{
-  public ResourceAlreadyExistedException(HttpStatus status, String message, Map<String, String> details) {
-    super(status, message, details);
+  public ResourceAlreadyExistedException(String message, Map<String, String> details) {
+    super(message, details);
   }
 }
 

@@ -17,7 +17,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Slf4j
-@Configuration
 @AllArgsConstructor
 public class UsernamePwdAuthenticationProvider implements AuthenticationProvider {
   private final OwnUserDetailsService detailsService;

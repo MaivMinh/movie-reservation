@@ -34,24 +34,19 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
     StringBuilder accessToken = new StringBuilder();
-    Cookie[] cookies = request.getCookies();
-    for (Cookie cookie : cookies) {
-      if (cookie.getName().equals("access_token")) {
-        accessToken.append(cookie.getValue());
-        break;
-      }
-    }
-
+    // Extract Authorization header.
+    String value = request.getHeader("Authorization");
+    accessToken.append(value.substring(7));
     if (!accessToken.isEmpty()) {
       try {
         Environment env = getEnvironment();
-        ;
-        String secret = env.getProperty("SECRET_KEY", ApplicationConstants.SECRET_KET);
+        String secret = env.getProperty("SECRET_KEY");
         SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(accessToken.toString()).getBody();
         String username = claims.get("username").toString();
-        String authorities = String.valueOf(claims.get("authorities"));
-        Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, AuthorityUtils.commaSeparatedStringToAuthorityList(authorities));
+        String roles = String.valueOf(claims.get("roles"));
+        Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, AuthorityUtils.commaSeparatedStringToAuthorityList(roles));
+        //Thêm authenticated object vào SecurityContextHolder.
         SecurityContextHolder.getContext().setAuthentication(authentication);
       } catch (ExpiredJwtException e) {
         throw new BadCredentialsException("Expired JWT token");
@@ -62,10 +57,5 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter {
       }
     } else throw new BadCredentialsException("Token not found!");
     filterChain.doFilter(request, response);
-  }
-
-  @Override
-  protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-    return (request.getServletPath().equals("/api/v1/auth/signup") || request.getServletPath().equals("/api/v1/auth/login") || request.getServletPath().equals("/api/v1/auth/refreshToken"));
   }
 }

@@ -5,6 +5,10 @@ import io.jsonwebtoken.security.SignatureException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.validation.BindException;
+import org.springframework.web.ErrorResponse;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,20 +19,27 @@ import java.util.Map;
 @Order(1)
 public class GlobalExceptionsHandling {
 
-  @ExceptionHandler({AbstractException.class})
-  public ResponseEntity<ExceptionResponse> handleAbstractionExceptions(AbstractException exception) {
-    return ResponseEntity.status(exception.getStatus())
+  @ExceptionHandler({ResourceNotFoundException.class})
+  public ResponseEntity<ExceptionResponse> handleBadCredentialsExceptions(BadCredentialsException exception) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(new ExceptionResponse(exception.getMessage(), null));
+  }
+
+  @ExceptionHandler({BadCredentialsException.class})
+  public ResponseEntity<ExceptionResponse> handleAbstractionExceptions(ResourceNotFoundException exception) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(new ExceptionResponse(exception.getMessage(), exception.getDetails()));
   }
 
-  @ExceptionHandler({ExpiredJwtException.class})
-  public ResponseEntity<ExceptionResponse> handleExpiredJwtException(ExpiredJwtException exception) {
-    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ExceptionResponse(exception.getMessage(), null));
+  @ExceptionHandler({AbstractException.class})
+  public ResponseEntity<ExceptionResponse> handleAbstractionExceptions(AbstractException exception) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(new ExceptionResponse(exception.getMessage(), exception.getDetails()));
   }
 
-  @ExceptionHandler({SignatureException.class})
-  public ResponseEntity<ExceptionResponse> handleSignatureException(SignatureException exception) {
-    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ExceptionResponse(exception.getMessage(), Map.of("cause", exception.getCause().toString())));
+  @ExceptionHandler({MethodArgumentNotValidException.class})
+  public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ExceptionResponse(exception.getMessage(), null));
   }
 
   @ExceptionHandler({RuntimeException.class})

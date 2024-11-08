@@ -7,7 +7,7 @@ import java.util.Map;
 
 @NoArgsConstructor
 public class ResourceNotFoundException extends AbstractException{
-  public ResourceNotFoundException(HttpStatus status, String message, Map<String, String> details) {
-    super(status, message, details);
+  public ResourceNotFoundException(String message, Map<String, String> details) {
+    super(message, details);
   }
 }

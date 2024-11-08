@@ -1,7 +1,7 @@
 package com.foolish.moviereservation.security;
 
+import com.foolish.moviereservation.DTOs.UserDTO;
 import com.foolish.moviereservation.model.Role;
-import com.foolish.moviereservation.model.User;
 import com.foolish.moviereservation.model.UserRole;
 import com.foolish.moviereservation.service.UserRoleService;
 import com.foolish.moviereservation.service.UserService;
@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -27,12 +28,10 @@ public class OwnUserDetailsService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    User user = userService.findByUsername(username);
-    if (user != null && user.getUserId() > 0) {
-      List<UserRole> userRoles = userRoleService.findAllByUser(user);
-      List<Role> roles = userRoles.stream().map(UserRole::getRole).toList();
-      List<GrantedAuthority> authorities = roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName())).collect(Collectors.toList());
-      return new org.springframework.security.core.userdetails.User(username, user.getPassword(), authorities);
+    com.foolish.moviereservation.model.User user = userService.findUserByUsername(username);
+    if (user != null && user.getId() > 0) {
+      List<GrantedAuthority> roles = List.of(new SimpleGrantedAuthority("ROLE_" + ((com.foolish.moviereservation.model.User) user).getRole().getName()));
+      return new User(username, user.getPassword(), roles );
     }
     throw new UsernameNotFoundException("Failed to load user by username");
   }

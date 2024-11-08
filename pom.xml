@@ -107,16 +107,16 @@
 
 
         <!--        Amazon  S3 Dependencies-->
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.12.773</version>
-        </dependency>
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>s3</artifactId>
-            <version>2.29.0</version>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>com.amazonaws</groupId>-->
+        <!--            <artifactId>aws-java-sdk-s3</artifactId>-->
+        <!--            <version>1.12.773</version>-->
+        <!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>software.amazon.awssdk</groupId>-->
+        <!--            <artifactId>s3</artifactId>-->
+        <!--            <version>2.29.0</version>-->
+        <!--        </dependency>-->
         <!--        Amazon  S3 Dependencies-->
 
         <!--        Set up Swagger.-->
@@ -143,6 +143,15 @@
         <!--        OAuth2.0 dependencies-->
 
 
+        <!--        Google API Client-->
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>2.6.0</version>
+        </dependency>
+
+        <!--        Google API Client-->
+
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
@@ -157,6 +166,11 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
             </plugin>
         </plugins>
     </build>

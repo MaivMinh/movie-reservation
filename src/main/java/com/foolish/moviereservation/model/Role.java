@@ -15,15 +15,12 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "Roles")
 public class Role {
+  public static final Integer ADMIN = 2;
+  public static final Integer USER = 2;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Integer roleId;
+  private Integer id;
   @NotNull
   private String name;
-
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "role")
-  private List<UserRole> userRoles;
-
-  public static final Integer ADMIN = 1;
-  public static final Integer USER = 2;
 }

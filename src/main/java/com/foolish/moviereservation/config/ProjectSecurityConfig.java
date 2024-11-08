@@ -1,5 +1,6 @@
 package com.foolish.moviereservation.config;
 
+import com.foolish.moviereservation.constants.ApplicationConstants;
 import com.foolish.moviereservation.filters.CsrfTokenFilter;
 import com.foolish.moviereservation.filters.JwtTokenValidatorFilter;
 import com.foolish.moviereservation.handler.SpaCsrfTokenRequestAttributeHandler;
@@ -35,6 +36,8 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Collections;
 import java.util.List;
@@ -63,20 +66,8 @@ public class ProjectSecurityConfig {
             .csrfTokenRequestHandler(new SpaCsrfTokenRequestAttributeHandler())
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
     );
-    http.addFilterAfter(new CsrfTokenFilter(), BasicAuthenticationFilter.class);
-    http.addFilterBefore(new JwtTokenValidatorFilter(), BasicAuthenticationFilter.class);
-
-    http.cors(corsConfig -> corsConfig
-            .configurationSource(request -> {
-              CorsConfiguration config = new CorsConfiguration();
-              config.setAllowedOrigins(Collections.singletonList("*")); //Thay thế Origin này sau khi lên Production.
-              config.setAllowedMethods(Collections.singletonList("*"));
-              config.setAllowCredentials(true);
-              config.setAllowedHeaders(Collections.singletonList("*"));
-              config.setExposedHeaders(List.of("Authorization"));
-              config.setMaxAge(3600L);
-              return config;
-            }));
+    http.addFilterAfter(new CsrfTokenFilter(), ExceptionTranslationFilter.class);
+    http.addFilterBefore(new JwtTokenValidatorFilter(), ExceptionTranslationFilter.class);
     http
             .authorizeHttpRequests(config -> config
                     .requestMatchers(
@@ -85,16 +76,11 @@ public class ProjectSecurityConfig {
                     .requestMatchers("api/v1/admin/**").hasRole("ADMIN")
                     .anyRequest().authenticated());
     http.httpBasic(config -> config.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+    http.oauth2Login(config -> config.defaultSuccessUrl(ApplicationConstants.DEFAULT_ORIGIN_URL));
     http.exceptionHandling(config -> config.accessDeniedHandler(new CustomAccessDeniedHandler()));
     return http.build();
   }
 
-  /*
-   * Bean phía dưới đây là Bean quan trọng trong việc hiển thị UI của OPEN API.
-   * Nếu chúng ta sử dụng .permitAll() cho các endpoint phía dưới đây thì chúng ta không cần phải xác thực authen/author gì cả. Nhưng HttpServletRequest sẽ vẫn đi qua JwtTokenValidatorFilter. Nên do đó, sẽ bị throw ra Exception do không có Cookies theo yêu cầu.
-   * Nhưng việc cấu hình .equals(...) cho từng endpoint phía dưới đây là việc thiếu linh hoạt và công kềnh. Nếu lỡ như sau này phát sinh các endpoint khác thì lại phải cập nhật thủ công lại bên trong JwtTokenValidatorFilter.
-   * Nên chúng ta phải sử dụng @Bean WebSecurityCustomize này để cho phép các endpoint phía dưới của Swagger có thể đi qua Filter chain. Từ đó tránh được JwtTokenValidatorFilter.
-   * */
   @Bean
   public WebSecurityCustomizer webSecurityCustomizer() {
     return (web) -> web.ignoring().requestMatchers(
@@ -115,6 +101,16 @@ public class ProjectSecurityConfig {
     return PasswordEncoderFactories.createDelegatingPasswordEncoder();
   }
 
+  @Bean
+  public WebMvcConfigurer corsConfigurer() {
+    return new WebMvcConfigurer() {
+      @Override
+      public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**").allowedOrigins(ApplicationConstants.DEFAULT_ORIGIN_URL).allowCredentials(true).exposedHeaders("*").allowedMethods("*");
+      }
+    };
+  }
+
   // Việc tạo ra Bean AuthenticationManager này chỉ áp dụng đối với các project yêu cầu việc login thông qua body của request.
   @Bean
   public AuthenticationManager authenticationManager(OwnUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
@@ -125,30 +121,16 @@ public class ProjectSecurityConfig {
     return providerManager;
   }
 
-  private ClientRegistration githubRegistration() {
-    String githubClientId = env.getProperty("github.clientId");
-    String githubClientSecret = env.getProperty("github.clientSecret");
-    return CommonOAuth2Provider.GITHUB.getBuilder("github").clientId(githubClientId).clientSecret(githubClientSecret).build();
-  }
-
   private ClientRegistration googleRegistration() {
     String googleClientId = env.getProperty("google.clientId");
     String googleClientSecret = env.getProperty("google.clientSecret");
     return CommonOAuth2Provider.GOOGLE.getBuilder("google").clientId(googleClientId).clientSecret(googleClientSecret).build();
   }
 
-  private ClientRegistration facebookRegistration() {
-    String facebookClientId = env.getProperty("facebook.appID");
-    String facebookClientSecret = env.getProperty("facebook.appSecret");
-    return CommonOAuth2Provider.FACEBOOK.getBuilder("facebook").clientId(facebookClientId).clientSecret(facebookClientSecret).build();
-  }
-
   @Bean
   ClientRegistrationRepository clientRegistrationRepository() {
     // Tạo ra các registration object. Mỗi object này đại diện cho 1 Auth Server mà chúng ta đã đăng kí.
-    ClientRegistration github = githubRegistration();
-    ClientRegistration facebook = facebookRegistration();
     ClientRegistration google = googleRegistration();
-    return new InMemoryClientRegistrationRepository(github, facebook, google);
+    return new InMemoryClientRegistrationRepository(google);
   }
 }

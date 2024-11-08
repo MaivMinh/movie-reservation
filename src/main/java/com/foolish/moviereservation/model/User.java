@@ -7,9 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Date;
-import java.util.List;
-
 @Entity
 @Getter
 @Setter
@@ -19,22 +16,22 @@ import java.util.List;
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Integer userId;
+  @Column(name = "user_id")
+  private Integer id;
   
   @NotNull
   private String username;
   @NotNull
   private String password;
   @NotNull
-  @Column(name = "phone_number")
-  private String phoneNumber;
-  @NotNull
   private String email;
+
   @NotNull
-  @Column(name = "birth_date")
-  private Date birthDate;
+  @Column(name = "name")
+  private String name;
   private String avatar;
 
-  @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
-  private List<UserRole> userRoles;
+  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, targetEntity = Role.class)
+  @JoinColumn(name = "role_id", referencedColumnName = "id")
+  private Role role;
 }

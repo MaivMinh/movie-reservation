@@ -121,7 +121,8 @@ public class ProjectSecurityConfig {
     return providerManager;
   }
 
-  private ClientRegistration googleRegistration() {
+  @Bean
+  public ClientRegistration googleRegistration() {
     String googleClientId = env.getProperty("google.clientId");
     String googleClientSecret = env.getProperty("google.clientSecret");
     return CommonOAuth2Provider.GOOGLE.getBuilder("google").clientId(googleClientId).clientSecret(googleClientSecret).build();

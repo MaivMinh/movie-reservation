@@ -67,14 +67,14 @@ public class ProjectSecurityConfig {
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
     );
     http.addFilterAfter(new CsrfTokenFilter(), ExceptionTranslationFilter.class);
-    http.addFilterBefore(new JwtTokenValidatorFilter(), ExceptionTranslationFilter.class);
+    http.addFilterAfter(new JwtTokenValidatorFilter(), ExceptionTranslationFilter.class);
     http
             .authorizeHttpRequests(config -> config
+                    .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                     .requestMatchers(
                             "/api/v1/auth/**",
-                            "/api/v1/public/**", "/api/v1/s3/**").permitAll()
-                    .requestMatchers("api/v1/admin/**").hasRole("ADMIN")
-                    .anyRequest().authenticated());
+                            "/", "/home").permitAll()
+                    .anyRequest().hasRole("USER"));
     http.httpBasic(config -> config.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
     http.oauth2Login(config -> config.defaultSuccessUrl(ApplicationConstants.DEFAULT_ORIGIN_URL));
     http.exceptionHandling(config -> config.accessDeniedHandler(new CustomAccessDeniedHandler()));

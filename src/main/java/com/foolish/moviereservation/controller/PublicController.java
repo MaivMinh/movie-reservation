@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = {"/", "/home"})
 public class PublicController {
 
-  @RequestMapping(value = "/")
+  @RequestMapping(value = "")
   public ResponseEntity<ResponseData> getHomePage() {
-    return ResponseEntity.status(HttpStatus.OK).body(new ResponseData(HttpStatus.OK.value(), "Success", null));
+    return ResponseEntity.status(HttpStatus.OK).body(new ResponseData(HttpStatus.OK.value(), "Success", "Movie Reservation System"));
   }
 }

@@ -21,7 +21,6 @@ public class Movie {
 
   @NotNull
   private String name;
-  @NotNull
   private String poster;
   @NotNull
   private String description;

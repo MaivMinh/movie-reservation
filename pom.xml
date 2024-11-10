@@ -106,19 +106,6 @@
         <!--        Dependencies for JSONWEBTOKEN.-->
 
 
-        <!--        Amazon  S3 Dependencies-->
-        <!--        <dependency>-->
-        <!--            <groupId>com.amazonaws</groupId>-->
-        <!--            <artifactId>aws-java-sdk-s3</artifactId>-->
-        <!--            <version>1.12.773</version>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>software.amazon.awssdk</groupId>-->
-        <!--            <artifactId>s3</artifactId>-->
-        <!--            <version>2.29.0</version>-->
-        <!--        </dependency>-->
-        <!--        Amazon  S3 Dependencies-->
-
         <!--        Set up Swagger.-->
         <dependency>
             <groupId>org.springdoc</groupId>
@@ -158,6 +145,26 @@
             <version>5.12.0</version>
             <scope>test</scope>
         </dependency>
+
+        <!--        Azure Blob Storage-->
+        <dependency>
+            <groupId>com.azure.spring</groupId>
+            <artifactId>spring-cloud-azure-dependencies</artifactId>
+            <version>5.18.0</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-storage-blob</artifactId>
+            <version>12.28.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.azure.spring</groupId>
+            <artifactId>spring-cloud-azure-starter-storage-blob</artifactId>
+            <version>5.18.0</version>
+        </dependency>
+        <!--        Azure Blob Storage-->
 
     </dependencies>
 

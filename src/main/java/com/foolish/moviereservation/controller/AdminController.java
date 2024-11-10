@@ -6,13 +6,13 @@ import com.foolish.moviereservation.response.ResponseData;
 import com.foolish.moviereservation.response.ResponseError;
 import com.foolish.moviereservation.service.AzureBlobService;
 import com.foolish.moviereservation.service.MovieService;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -23,9 +23,24 @@ public class AdminController {
 
   @GetMapping(value = "/movies/{id}")
   public ResponseEntity<ResponseData> getMovieDetails(@PathVariable Integer id) {
+    /*
+    * Response:
+    * {
+      "movie": {
+          "movie_id": Integer,
+          "name": String,
+          "description": String,
+          "trailer": String,
+          "poster": String,
+          "releaseDate": Date,
+          * voteCount: Integer,
+          * voteAverage: Integer,
+          * movieGenres: [],
+      }
+    * */
+
     Movie movie = movieService.findMovieByIdOrElseThrow(id);
-    ByteArrayResource resource = azureBlobService.readBlobFile(movie.getPoster());
-    return ResponseEntity.ok(new ResponseData(HttpStatus.OK.value(), "Success", resource.getByteArray()));
+    return ResponseEntity.ok(new ResponseData(HttpStatus.OK.value(), "Success", Map.of("movie", movie)));
   }
 
   // Phương thức tạo ra một phim mới.
@@ -46,11 +61,11 @@ public class AdminController {
     * */
 
     // Lưu poster lên AWS hoặc Azure. Sau đó lưu Movie mới vào hệ thống.
-    String blobName = azureBlobService.writeBlobFile(poster);
-    if (blobName == null || blobName.isEmpty()) {
+    String url = azureBlobService.writeBlobFile(poster);
+    if (url == null || url.isEmpty()) {
       return ResponseEntity.status(HttpStatus.OK).body(new ResponseError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Can't upload poster"));
     }
-    movie.setPoster(blobName);
+    movie.setPoster(url);
     Movie saved = movieService.save(movie);
     if (saved == null || saved.getId() <= 0) {
       return ResponseEntity.status(HttpStatus.OK).body(new ResponseError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Can't save movie"));

@@ -5,6 +5,7 @@ import com.azure.core.util.BinaryData;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobClientBuilder;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
+import com.foolish.moviereservation.model.Movie;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
@@ -13,10 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.UUID;
 
 @Slf4j
@@ -24,20 +22,25 @@ import java.util.UUID;
 @AllArgsConstructor
 public class AzureBlobService {
   private final Environment env;
+  private final MovieService movieService;
 
-  private String generateUniqueBlobName(String fileName) {
+  private String generateUniqueBlobName(String original) {
     String extension = "";
-    int dotIndex = fileName.lastIndexOf(".");
+    StringBuilder fileName = new StringBuilder();
+    int dotIndex = original.lastIndexOf(".");
     if (dotIndex != -1) {
-      extension = fileName.substring(dotIndex);
-      fileName = fileName.substring(0, dotIndex);
+      extension = original.substring(dotIndex);
+      fileName.append(original, 0, dotIndex);
     }
 
-    // Tạo tên blob với UUID và phần mở rộng
-    return fileName + "_" + UUID.randomUUID() + extension;
+    String combine = fileName + "_" + UUID.randomUUID() + extension;
+    Movie movie = movieService.findMovieByPoster(combine);
+    if (movie != null) return generateUniqueBlobName(original);
+    return combine;
   }
 
-  public ByteArrayResource readBlobFile(String filename) {
+  public String readBlobFile(String filename) {
+    // Chức năng thực hiện đọc một Blob file có sẵn và trả về public URL tới Blob file đó.
     BlobClient blobClient = new BlobClientBuilder()
             .connectionString(env.getProperty("AZURE_STORAGE_CONNECTION_STRING"))
             .containerName("posters")
@@ -47,15 +50,15 @@ public class AzureBlobService {
     if (!blobClient.exists()) {
       return null;
     }
-    BinaryData data = blobClient.downloadContent();
-    return new ByteArrayResource(data.toBytes());
+    return blobClient.getBlobUrl();
   }
 
   public String writeBlobFile(MultipartFile file) {
+    String fileName = !file.getOriginalFilename().isEmpty() ? file.getOriginalFilename() : file.getName();
     BlobClient blobClient = new BlobClientBuilder()
             .connectionString(env.getProperty("AZURE_STORAGE_CONNECTION_STRING"))
             .containerName("posters")
-            .blobName(generateUniqueBlobName(file.getName()))
+            .blobName(generateUniqueBlobName(fileName))
             .buildClient();
     try {
       blobClient.upload(file.getInputStream(), file.getBytes().length, false);
@@ -63,6 +66,6 @@ public class AzureBlobService {
       log.error(e.getMessage(), e);
       return null;
     }
-    return blobClient.getBlobName();
+    return blobClient.getBlobUrl();
   }
 }

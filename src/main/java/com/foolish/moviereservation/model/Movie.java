@@ -30,6 +30,6 @@ public class Movie {
   private Double voteAverage;
   private Integer voteCount;
 
-  @OneToMany(mappedBy = "movie", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, targetEntity = MovieGenre.class)
+  @OneToMany(mappedBy = "movie", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST, targetEntity = MovieGenre.class)
   private Set<MovieGenre> movieGenres;
 }

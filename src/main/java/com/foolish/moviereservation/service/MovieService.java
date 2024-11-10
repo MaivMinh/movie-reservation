@@ -21,4 +21,9 @@ public class MovieService {
     Optional<Movie> result = movieRepo.findMovieById(id);
     return result.orElseThrow(() -> new ResourceNotFoundException("Movie not found",null));
   }
+
+  public Movie findMovieByPoster(String poster) {
+    Optional<Movie> result = movieRepo.findMovieByPoster(poster);
+    return result.orElse(null);
+  }
 }

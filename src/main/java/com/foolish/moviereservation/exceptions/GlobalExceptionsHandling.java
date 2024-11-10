@@ -12,21 +12,24 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.View;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice(annotations = RestController.class)
 @Order(1)
 public class GlobalExceptionsHandling {
 
-  @ExceptionHandler({ResourceNotFoundException.class})
+
+  @ExceptionHandler({BadCredentialsException.class})
   public ResponseEntity<ExceptionResponse> handleBadCredentialsExceptions(BadCredentialsException exception) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(new ExceptionResponse(exception.getMessage(), null));
   }
 
-  @ExceptionHandler({BadCredentialsException.class})
-  public ResponseEntity<ExceptionResponse> handleAbstractionExceptions(ResourceNotFoundException exception) {
+  @ExceptionHandler({ResourceNotFoundException.class})
+  public ResponseEntity<ExceptionResponse> handleResourceNotFoundExceptions(ResourceNotFoundException exception) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(new ExceptionResponse(exception.getMessage(), exception.getDetails()));
   }
@@ -38,9 +41,10 @@ public class GlobalExceptionsHandling {
   }
 
   @ExceptionHandler({MethodArgumentNotValidException.class})
-  public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ExceptionResponse(exception.getMessage(), null));
+  public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException() {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ExceptionResponse("Method arguments not valid!", null));
   }
+
 
   @ExceptionHandler({RuntimeException.class})
   public ResponseEntity<ExceptionResponse> handleRuntimeException(RuntimeException exception) {

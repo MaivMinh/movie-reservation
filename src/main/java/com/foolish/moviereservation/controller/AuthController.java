@@ -67,7 +67,7 @@ public class AuthController {
   private final OAuth2Service oAuth2Service;
 
   @PostMapping("/register")
-  public ResponseEntity<ResponseData> signUp(@RequestBody @Valid User user) {
+  public ResponseEntity<ResponseData> register(@RequestBody @Valid User user) {
     // Hàm tạo một User mới bên trong hệ thống.
     UserDTO result = null;
     result = userService.findUserDTOByUsername(user.getUsername());

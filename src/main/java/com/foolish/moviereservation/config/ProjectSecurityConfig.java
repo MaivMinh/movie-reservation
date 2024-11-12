@@ -77,7 +77,7 @@ public class ProjectSecurityConfig {
                     .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                     .requestMatchers(
                             "/api/v1/auth/**",
-                            "/api/v1/movies/**",
+                            "/api/v1/movies/**", "/api/v1/movies",
                             "/", "/home").permitAll()
                     .anyRequest().hasAnyRole("USER", "ADMIN"));
     http.httpBasic(config -> config.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));

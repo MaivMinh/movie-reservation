@@ -28,8 +28,8 @@ public class MovieController {
   private final MovieService movieService;
 
   // Hàm thực hiện chức năng tìm kiếm theo tiêu chí, sắp xếp và phân trang.
-  @PostMapping(value = "")
-  public ResponseEntity<ResponseData> getMoviesByCriteria(@RequestBody @NotNull Map<String, String> criteria, @RequestParam(value = "sort", required = false) String sort, @RequestParam(value = "pageNumber", required = false) Integer pageNumber, @RequestParam(value = "pageSize", required = false) Integer pageSize) {
+  @PostMapping(value = "/search")
+  public ResponseEntity<ResponseData> getMoviesByCriteria(@RequestBody Map<String, String> criteria, @RequestParam(value = "sort", required = false) String sort, @RequestParam(value = "pageNumber", required = false) Integer pageNumber, @RequestParam(value = "pageSize", required = false) Integer pageSize) {
 
     int pageNum = (pageNumber != null ? pageNumber : 1) - 1;
     int size = pageSize != null ? pageSize : 10;

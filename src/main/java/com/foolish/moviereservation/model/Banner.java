@@ -3,18 +3,16 @@ package com.foolish.moviereservation.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 @Entity
-public class Province {
+@Table(name = "Banners")
+public class Banner {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
   @NotNull
-  private String name;
+  private String url;
 
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "province")
-  private List<Cinema> cinemas;
+  @ManyToOne(targetEntity = Cinema.class)
+  @JoinColumn(name = "cinema_id")
+  private Cinema cinema;
 }

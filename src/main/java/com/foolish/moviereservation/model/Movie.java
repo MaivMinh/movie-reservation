@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Date;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -34,5 +35,5 @@ public class Movie {
 
   @JsonIgnore
   @OneToMany(mappedBy = "movie", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST, targetEntity = MovieGenre.class)
-  private Set<MovieGenre> movieGenres;
+  private List<MovieGenre> movieGenres;
 }

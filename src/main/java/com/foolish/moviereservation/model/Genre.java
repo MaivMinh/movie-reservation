@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -20,5 +21,5 @@ public class Genre {
 
   @JsonIgnore
   @OneToMany(mappedBy = "genre", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, targetEntity = MovieGenre.class)
-  private Set<MovieGenre> movieGenres;
+  private List<MovieGenre> movieGenres;
 }

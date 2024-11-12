@@ -68,4 +68,13 @@ public class AzureBlobService {
     }
     return blobClient.getBlobUrl();
   }
+
+  public boolean deleteBlobFile(String filename) {
+    BlobClient blobClient = new BlobClientBuilder()
+            .connectionString(env.getProperty("AZURE_STORAGE_CONNECTION_STRING"))
+            .containerName("posters")
+            .blobName(filename)
+            .buildClient();
+    return blobClient.deleteIfExists();
+  }
 }

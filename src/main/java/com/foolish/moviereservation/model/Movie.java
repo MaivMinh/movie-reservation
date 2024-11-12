@@ -1,5 +1,6 @@
 package com.foolish.moviereservation.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -30,6 +31,7 @@ public class Movie {
   private Double voteAverage;
   private Integer voteCount;
 
+  @JsonIgnore
   @OneToMany(mappedBy = "movie", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST, targetEntity = MovieGenre.class)
   private Set<MovieGenre> movieGenres;
 }

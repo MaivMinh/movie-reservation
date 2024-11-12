@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
   @Override
   public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+    accessDeniedException.printStackTrace();
     String timeStamp = LocalDateTime.now().toString();
     String message = (accessDeniedException != null && accessDeniedException.getMessage() != null) ? accessDeniedException.getMessage() : "Authorization failed!";
     String path = request.getRequestURI();

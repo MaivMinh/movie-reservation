@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class CustomBasicAuthenticationEntryPoint implements AuthenticationEntryPoint {
   @Override
   public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+    authException.printStackTrace();
     String timeStamp = LocalDateTime.now().toString();
     String message = (authException != null && authException.getMessage() != null) ? authException.getMessage() : "Unauthorized";
     String path = request.getServletPath();

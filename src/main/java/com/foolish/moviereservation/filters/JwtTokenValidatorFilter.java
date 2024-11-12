@@ -20,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.crypto.SecretKey;
+import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -45,6 +46,7 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter {
         Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(accessToken.toString()).getBody();
         String username = claims.get("username").toString();
         String roles = String.valueOf(claims.get("roles"));
+        System.out.println(roles);
         Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, AuthorityUtils.commaSeparatedStringToAuthorityList(roles));
         //Thêm authenticated object vào SecurityContextHolder.
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -57,5 +59,11 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter {
       }
     } else throw new BadCredentialsException("Token not found!");
     filterChain.doFilter(request, response);
+  }
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    String path = request.getServletPath();
+    return (path.startsWith("/api/v1/auth") || path.startsWith("/api/v1/movies"));
   }
 }

@@ -55,7 +55,7 @@ import static com.foolish.moviereservation.exceptions.ExceptionMessage.RESOURCE_
 @Slf4j
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/v1/auth")
+@RequestMapping(value = "/api/v1/auth")
 public class AuthController {
   private final UserService userService;
   private final PasswordEncoder passwordEncoder;
@@ -117,7 +117,7 @@ public class AuthController {
         SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         jwt = Jwts.builder().setIssuer("Movie Reservation System").setSubject("Access Token")
                 .claim("username", authenticationResponse.getName())
-                .claim("authorities", authenticationResponse.getAuthorities().stream().map(
+                .claim("roles", authenticationResponse.getAuthorities().stream().map(
                         GrantedAuthority::getAuthority).collect(Collectors.joining(",")))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + 7 * 24 * 3600 * 1000L))

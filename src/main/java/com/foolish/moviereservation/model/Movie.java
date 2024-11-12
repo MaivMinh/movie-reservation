@@ -23,6 +23,7 @@ public class Movie {
   @NotNull
   private String name;
   private String poster;
+  private String backdrop;
   @NotNull
   private String description;
   private String trailer;

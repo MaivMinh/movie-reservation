@@ -53,25 +53,8 @@ public class ProjectSecurityConfig {
   @Bean
   SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-//    http.csrf(config -> config
-//            .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-//            .ignoringRequestMatchers(
-//                    "/api/v1/auth/**",
-//                    "/swagger-ui/**",
-//                    "/v2/api-docs",
-//                    "/v3/api-docs",
-//                    "/v3/api-docs/**",
-//                    "/swagger-ui/**",
-//                    "/swagger-resources/**",
-//                    "/swagger-resources",
-//                    "/swagger-ui.html")
-//            .csrfTokenRepository(new CookieCsrfTokenRepository())
-//            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-//    );
-//    http.addFilterAfter(new CsrfTokenFilter(), BasicAuthenticationFilter.class);
-
     http.csrf(AbstractHttpConfigurer::disable);
-    http.addFilterAfter(new JwtTokenValidatorFilter(), ExceptionTranslationFilter.class);
+    http.addFilterBefore(new JwtTokenValidatorFilter(), BasicAuthenticationFilter.class); // Nếu để phía sau ExceptionTranslation thì nhiều trường hợp không thể catch đúng lỗi.
     http
             .authorizeHttpRequests(config -> config
                     .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")

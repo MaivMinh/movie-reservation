@@ -1,5 +1,6 @@
 package com.foolish.moviereservation.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -21,10 +22,11 @@ public class Cinema {
   private String name;
   private String address;
 
-  @ManyToOne(fetch = FetchType.EAGER, targetEntity = Province.class, cascade = CascadeType.PERSIST)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "province")
   private Province province;
 
-  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, targetEntity = Banner.class)
+  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, targetEntity = Banner.class, orphanRemoval = true)
+  @JoinColumn(name = "cinema_id")
   private List<Banner> banners;
 }

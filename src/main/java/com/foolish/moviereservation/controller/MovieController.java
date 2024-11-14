@@ -1,5 +1,6 @@
 package com.foolish.moviereservation.controller;
 
+import com.foolish.moviereservation.DTOs.MovieDTO;
 import com.foolish.moviereservation.model.Genre;
 import com.foolish.moviereservation.model.Movie;
 import com.foolish.moviereservation.model.MovieGenre;
@@ -26,6 +27,18 @@ import java.util.Map;
 @RequestMapping(value = "/api/v1/movies")
 public class MovieController {
   private final MovieService movieService;
+
+  // Phương thức lấy danh sách phim.
+  @GetMapping(value = "")
+  public ResponseEntity<ResponseData> getMovies(@RequestParam(value = "pageSize", required = false) Integer pageSize, @RequestParam(value = "page", required = false) Integer page) {
+    int size = (pageSize != null ? pageSize : 10);
+    int pageNum = (page != null ? page : 1) - 1;
+
+    Pageable pageable = PageRequest.of(pageNum, size);
+    Page<MovieDTO> movies = movieService.findMovieDTOs(pageable);
+    return ResponseEntity.ok(new ResponseData(HttpStatus.OK.value(), "Success", movies));
+  }
+
 
   // Hàm thực hiện chức năng tìm kiếm theo tiêu chí, sắp xếp và phân trang.
   @PostMapping(value = "/search")

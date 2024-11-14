@@ -36,4 +36,7 @@ public class Movie {
   @JsonIgnore
   @OneToMany(mappedBy = "movie", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST, targetEntity = MovieGenre.class)
   private List<MovieGenre> movieGenres;
+
+  @OneToMany(mappedBy = "movie", targetEntity = Showtime.class, cascade = CascadeType.REMOVE)
+  private Set<Showtime> showtimes;
 }

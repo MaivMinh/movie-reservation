@@ -1,7 +1,11 @@
 package com.foolish.moviereservation.controller;
 
 import com.foolish.moviereservation.DTOs.CinemaDTO;
+import com.foolish.moviereservation.DTOs.MovieDTO;
+import com.foolish.moviereservation.DTOs.ShowtimeDTO;
 import com.foolish.moviereservation.mapper.CinemaMapperImpl;
+import com.foolish.moviereservation.mapper.RoomMapperImpl;
+import com.foolish.moviereservation.mapper.ShowtimeMapperImpl;
 import com.foolish.moviereservation.model.*;
 import com.foolish.moviereservation.records.UpdatedMovie;
 import com.foolish.moviereservation.response.ResponseData;
@@ -35,6 +39,10 @@ public class AdminController {
   private final CinemaService cinemaService;
   private final ProvinceService provinceService;
   private final CinemaMapperImpl cinemaMapperImpl;
+  private final RoomService roomService;
+  private final RoomMapperImpl roomMapperImpl;
+  private final ShowtimeService showtimeService;
+  private final ShowtimeMapperImpl showtimeMapperImpl;
 
 
   // Phương thức tạo ra một phim mới.
@@ -210,12 +218,105 @@ public class AdminController {
       cinema.setName(dto.getName());
     }
     if (StringUtils.hasText(dto.getAddress())) cinema.setAddress(dto.getAddress());
-    if (dto.getProvince() != null)  cinema.setProvince(provinceService.findByIdOrElseThrow(dto.getProvince().getId()));
+    if (dto.getProvince() != null) cinema.setProvince(provinceService.findByIdOrElseThrow(dto.getProvince().getId()));
 
     Cinema saved = cinemaService.save(cinema);
     if (saved == null || saved.getId() <= 0) {
       return ResponseEntity.ok(new ResponseError(HttpStatus.BAD_REQUEST.value(), "Can't save cinema"));
     }
     return ResponseEntity.ok(new ResponseData(HttpStatus.NO_CONTENT.value(), "Success", null));
+  }
+
+  @Transactional
+  @PostMapping(value = "/rooms")
+  public ResponseEntity<ResponseData> createRoom(@RequestBody @NotNull RoomDTO dto) {
+    /*
+    request-body: {
+      name: String,
+      location: String,
+      cinema: {id: Integer}
+    }
+
+    response-data: {
+      name: String,
+      location: String,
+      cinema: CinemaDTO
+    }
+    */
+
+    Room room = new Room();
+    room.setName(dto.getName());
+    room.setLocation(dto.getLocation());
+    Cinema cinema = cinemaService.getCinemaByIdOrElseThrow(dto.getCinema().getId());
+    room.setCinema(cinema);
+    Room saved = roomService.save(room);
+    if (saved == null || saved.getId() <= 0) {
+      return ResponseEntity.ok(new ResponseError(HttpStatus.BAD_REQUEST.value(), "Can't save room"));
+    }
+    dto = roomMapperImpl.toDTO(saved);
+
+    return ResponseEntity.ok(new ResponseData(HttpStatus.OK.value(), "Success", dto));
+  }
+
+
+  // Phương thức update room.
+  @Transactional
+  @PatchMapping(value = "/rooms/{id}")
+  public ResponseEntity<ResponseData> updateRoom(@PathVariable Integer id, @RequestBody RoomDTO dto) {
+    Room room = roomService.getRoomById(id);
+    if (StringUtils.hasText(dto.getName())) {
+      room.setName(dto.getName());
+    }
+    if (StringUtils.hasText(dto.getLocation())) room.setLocation(dto.getLocation());
+    if (dto.getCinema() != null) {
+      room.setCinema(cinemaService.getCinemaByIdOrElseThrow(dto.getCinema().getId()));
+    }
+    Room saved = roomService.save(room);
+    if (saved == null || saved.getId() <= 0) {
+      return ResponseEntity.ok(new ResponseError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Can't save room"));
+    }
+    dto = roomMapperImpl.toDTO(saved);
+    return ResponseEntity.ok(new ResponseData(HttpStatus.NO_CONTENT.value(), "Success", dto));
+  }
+
+  // Tạo showtime.
+  @Transactional
+  @PostMapping(value = "/showtimes")
+  public ResponseEntity<ResponseData> createShowtime(@RequestBody @NotNull ShowtimeDTO dto) {
+    /*
+    request-body: {
+      movie_id: Integer,
+      room_id: Integer,
+      date: Date,
+      start_time: Time,
+      end_time: Time,
+    }
+
+    response-data: {
+      id: Integer,
+      movie: MovieDTO,
+      room: RoomDTO,
+      date: java.sql.Date,
+      startTime: Time,
+      endTime: Time,
+    }
+    */
+
+    Showtime showtime = new Showtime();
+    Movie movie = movieService.findMovieByIdOrElseThrow(dto.getMovie().getId());
+    showtime.setMovie(movie);
+    Room room = roomService.getRoomByIdOrElseThrow(dto.getRoom().getId());
+    showtime.setRoom(room);
+    showtime.setDate(dto.getDate());
+    showtime.setStartTime(dto.getStartTime());
+    showtime.setEndTime(dto.getEndTime());
+    Showtime saved = showtimeService.save(showtime);
+
+    if (saved == null || saved.getId() <= 0) {
+      return ResponseEntity.ok(new ResponseError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Can't save showtime"));
+    }
+    dto = showtimeMapperImpl.toDTO(saved);
+
+    return ResponseEntity.ok(new ResponseData(HttpStatus.NO_CONTENT.value(), "Success", dto));
   }
 }

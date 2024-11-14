@@ -29,4 +29,7 @@ public class Cinema {
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, targetEntity = Banner.class, orphanRemoval = true)
   @JoinColumn(name = "cinema_id")
   private List<Banner> banners;
+
+  @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "cinema")
+  private List<Room> room;
 }

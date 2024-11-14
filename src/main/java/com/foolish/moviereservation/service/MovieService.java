@@ -1,17 +1,23 @@
 package com.foolish.moviereservation.service;
 
+import com.foolish.moviereservation.DTOs.MovieDTO;
 import com.foolish.moviereservation.exceptions.ResourceNotFoundException;
+import com.foolish.moviereservation.mapper.MovieMapperImpl;
 import com.foolish.moviereservation.model.Movie;
 import com.foolish.moviereservation.repository.MovieRepo;
+import com.foolish.moviereservation.response.ResponseData;
 import com.foolish.moviereservation.specifications.MovieSpecs;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -22,6 +28,7 @@ import static org.springframework.data.jpa.domain.Specification.where;
 @AllArgsConstructor
 public class MovieService {
   private final MovieRepo movieRepo;
+  private final MovieMapperImpl movieMapperImpl;
 
   public Movie save(Movie movie) {
     return movieRepo.save(movie);
@@ -39,15 +46,15 @@ public class MovieService {
 
   public Page<Movie> findByCriteria(Map<String, String> criteria, Pageable pageable) {
     /*
-    * Map<>: {
-    * name: String,
-    * description: String,
-    * release_date: +2024-10-10,
-    * vote_average: +4.5,
-    * vote_count: +100,
-    * }
-    *
-    * */
+     * Map<>: {
+     * name: String,
+     * description: String,
+     * release_date: +2024-10-10,
+     * rating: +4.5,
+     * vote_count: +100,
+     * }
+     *
+     * */
 
     Specification<Movie> specification = where(null);
     if (StringUtils.hasText(criteria.get("name"))) {
@@ -73,8 +80,8 @@ public class MovieService {
       }
     }
 
-    if (StringUtils.hasText(criteria.get("vote_average"))) {
-      String value = String.valueOf(criteria.get("vote_average"));
+    if (StringUtils.hasText(criteria.get("rating"))) {
+      String value = String.valueOf(criteria.get("rating"));
       char c = value.charAt(0);
       if (c == '+') {
         double given = Double.parseDouble(value.substring(1));
@@ -102,5 +109,11 @@ public class MovieService {
       }
     }
     return movieRepo.findAll(specification, pageable);
+  }
+
+  public Page<MovieDTO> findMovieDTOs(Pageable pageable) {
+    Page<Movie> page = movieRepo.findAll(pageable);
+    List<Movie> movies = page.getContent();
+    return new PageImpl<>(movies.stream().map(movieMapperImpl::toDTO).toList(), pageable, page.getTotalElements());
   }
 }

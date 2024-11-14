@@ -17,6 +17,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -75,6 +77,7 @@ public class AdminController {
   }
 
   // Phương thức update movie.
+  @Transactional
   @PatchMapping(value = "/movies/{id}", consumes = {"multipart/form-data"})
   public ResponseEntity<ResponseData> updateMovie(@RequestPart(value = "movie", required = false) @Valid UpdatedMovie movie, @RequestPart(value = "poster", required = false) MultipartFile poster, @RequestPart(value = "genres", required = false) List<Integer> genreIds, @PathVariable Integer id) {
     /* Dữ liệu update tuỳ thuộc vào client.
@@ -148,7 +151,7 @@ public class AdminController {
 
     Province province = null;
     try {
-      province = provinceService.findById(dto.getProvince().getId());
+      province = provinceService.findByIdOrElseThrow(dto.getProvince().getId());
     } catch (NullPointerException e) {
       throw new RuntimeException("Can't find province");
     }
@@ -190,12 +193,29 @@ public class AdminController {
     return ResponseEntity.ok(new ResponseData(HttpStatus.OK.value(), "Success", page));
   }
 
-
   // Phương thức lấy thông tin của một Cinema. Lưu ý, nếu như Role ADMIN thì sẽ trả về CinemaDTO có chứa ProvinceDTO.
   @GetMapping(value = "/cinemas/{id}")
   public ResponseEntity<ResponseData> getCinema(@PathVariable Integer id) {
-    Cinema cinema = cinemaService.getCinemaById(id);
+    Cinema cinema = cinemaService.getCinemaByIdOrElseThrow(id);
     CinemaDTO data = cinemaMapperImpl.toDTO(cinema);
     return ResponseEntity.ok(new ResponseData(HttpStatus.OK.value(), "Success", data));
+  }
+
+  // Phương thức update Cinema
+  @Transactional
+  @PatchMapping(value = "/cinemas/{id}")
+  public ResponseEntity<ResponseData> updateCinema(@PathVariable Integer id, @RequestBody @NotNull CinemaDTO dto) {
+    Cinema cinema = cinemaService.getCinemaByIdOrElseThrow(id);
+    if (StringUtils.hasText(dto.getName())) {
+      cinema.setName(dto.getName());
+    }
+    if (StringUtils.hasText(dto.getAddress())) cinema.setAddress(dto.getAddress());
+    if (dto.getProvince() != null)  cinema.setProvince(provinceService.findByIdOrElseThrow(dto.getProvince().getId()));
+
+    Cinema saved = cinemaService.save(cinema);
+    if (saved == null || saved.getId() <= 0) {
+      return ResponseEntity.ok(new ResponseError(HttpStatus.BAD_REQUEST.value(), "Can't save cinema"));
+    }
+    return ResponseEntity.ok(new ResponseData(HttpStatus.NO_CONTENT.value(), "Success", null));
   }
 }

@@ -14,7 +14,7 @@ import java.util.Optional;
 public class ProvinceService {
   private final ProvinceRepo provinceRepo;
 
-  public Province findById(Integer id) {
+  public Province findByIdOrElseThrow(Integer id) {
     Optional<Province> result = provinceRepo.findById(id);
     return result.orElseThrow(() -> new ResourceNotFoundException("Province id not found", Map.of("province_id", String.valueOf(id))));
   }

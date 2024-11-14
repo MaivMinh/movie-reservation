@@ -35,7 +35,7 @@ public class CinemaService {
   private final CinemaRepo cinemaRepo;
   private final CinemaMapperImpl cinemaMapperImpl;
 
-  public Cinema getCinemaById(Integer id) {
+  public Cinema getCinemaByIdOrElseThrow(Integer id) {
     Optional<Cinema> cinema = cinemaRepo.findById(id);
     return cinema.orElseThrow(() -> new ResourceNotFoundException("Cinema not found", Map.of("cinema_id", String.valueOf(id))));
   }

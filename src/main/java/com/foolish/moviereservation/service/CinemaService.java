@@ -5,6 +5,7 @@ import com.foolish.moviereservation.exceptions.ResourceNotFoundException;
 import com.foolish.moviereservation.mapper.CinemaMapper;
 import com.foolish.moviereservation.mapper.CinemaMapperImpl;
 import com.foolish.moviereservation.model.Cinema;
+import com.foolish.moviereservation.model.Province;
 import com.foolish.moviereservation.repository.CinemaRepo;
 import com.foolish.moviereservation.response.ResponseData;
 import com.foolish.moviereservation.specifications.CinemaSpecs;
@@ -59,5 +60,20 @@ public class CinemaService {
     List<CinemaDTO> list = result.getContent().stream().map(cinemaMapperImpl::toDTO).toList();
 
     return new PageImpl<>(list, pageable, result.getTotalElements());
+  }
+
+  public CinemaDTO getCinemaDTOById(Integer id) {
+    Optional<Cinema> result = cinemaRepo.findById(id);
+    return cinemaMapperImpl.toDTO(result.orElse(null));
+  }
+
+  public CinemaDTO getCinemaDTOByIdOrElseThrow(Integer id) {
+    Optional<Cinema> result = cinemaRepo.findById(id);
+    return cinemaMapperImpl.toDTO(result.orElseThrow(() -> new ResourceNotFoundException("Cinema not found",Map.of("cinema_id", String.valueOf(id)))));
+  }
+
+  public List<CinemaDTO> getCinemasByProvinceId(Integer id) {
+    List<Cinema> provinces = cinemaRepo.findCinemasByProvinceId(id);
+    return provinces.stream().map(cinemaMapperImpl::toDTO).toList();
   }
 }

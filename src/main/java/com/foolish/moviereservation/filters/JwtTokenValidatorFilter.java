@@ -63,6 +63,6 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter {
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
     String path = request.getServletPath();
-    return (path.startsWith("/api/v1/auth") || path.startsWith("/api/v1/movies"));
+    return (path.startsWith("/api/v1/auth") || path.startsWith("/api/v1/movies") || path.startsWith("/api/v1/cinemas"));
   }
 }

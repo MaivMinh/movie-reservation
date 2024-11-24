@@ -111,8 +111,7 @@ public class AuthController {
           token.setToken(refreshToken);
           token.setUsername(username);
           token.setValidUntil(new Timestamp(new Date(new Date().getTime() + 30 * 24 * 3600 * 1000L).getTime()));  // Có thời hạn 30 ngày.
-          token = tokenService.save(token);
-        } else refreshToken = token.getToken();
+        }
         String secret = env.getProperty("SECRET_KEY");
         SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         jwt = Jwts.builder().setIssuer("Movie Reservation System").setSubject("Access Token")
@@ -122,6 +121,8 @@ public class AuthController {
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + 7 * 24 * 3600 * 1000L))
                 .signWith(secretKey).compact();
+        token.setJwt(jwt);
+        tokenService.save(token);
       } else log.error("COULD NOT FIND ENVIRONMENT VARIABLE!");
     } else {
       log.error("UNAUTHENTICATED USER!");
@@ -162,7 +163,7 @@ public class AuthController {
     } catch (ExpiredJwtException e) {
       // Token thực sự hết hạn.
       log.warn("Access token has truly expired");
-      token = tokenService.findByToken(accessToken.toString());
+      token = tokenService.findByToken(refreshToken.toString());
       isExpired = token.getJwt().contentEquals(accessToken);
     } catch (RuntimeException e) {
       throw new RuntimeException("Validate JWT token failed!");
@@ -183,6 +184,9 @@ public class AuthController {
               .setIssuedAt(new Date())
               .setExpiration(new Date((new Date()).getTime() + 7 * 24 * 3600 * 1000L))
               .signWith(secretKey).compact();
+
+      // Update lại jwt ở Tokens trong DB.
+      token.setJwt(jwt);
       return ResponseEntity.ok(new ResponseData(HttpStatus.OK.value(), "Issued a new access token!", new LoginResponse("Bearer", jwt, new Timestamp(new Date().getTime() + 7 * 24 * 3600 * 1000L))));
     }
     // 2. Xét trường hợp là hết hạn, xoá refresh token dưới DB rồi sau đó trả về response yêu cầu Client đăng nhập lại.

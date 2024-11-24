@@ -2,6 +2,7 @@ package com.foolish.moviereservation.exceptions;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import org.springframework.core.NestedRuntimeException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +44,11 @@ public class GlobalExceptionsHandling {
   @ExceptionHandler({MethodArgumentNotValidException.class})
   public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException() {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ExceptionResponse("Method arguments not valid!", null));
+  }
+
+  @ExceptionHandler({NestedRuntimeException.class})
+  public ResponseEntity<ExceptionResponse> handleNestedRuntimeException(NestedRuntimeException exception) {
+    return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ExceptionResponse("Invalid params", null));
   }
 
 

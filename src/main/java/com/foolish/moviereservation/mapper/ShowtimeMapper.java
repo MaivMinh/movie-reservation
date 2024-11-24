@@ -7,4 +7,5 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring", uses = {MovieMapper.class, RoomMapper.class})
 public interface ShowtimeMapper {
   ShowtimeDTO toDTO(Showtime showtime);
+  Showtime toEntity(ShowtimeDTO showtimeDTO);
 }

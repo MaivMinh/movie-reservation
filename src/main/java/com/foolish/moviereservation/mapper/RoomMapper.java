@@ -11,4 +11,9 @@ public interface RoomMapper {
   @Mapping(source = "name", target = "name")
   @Mapping(source = "location", target = "location")
   RoomDTO toDTO(Room room);
+
+  @Mapping(source = "id", target = "id")
+  @Mapping(source = "name", target = "name")
+  @Mapping(source = "location", target = "location")
+  Room toEntity(RoomDTO roomDTO);
 }

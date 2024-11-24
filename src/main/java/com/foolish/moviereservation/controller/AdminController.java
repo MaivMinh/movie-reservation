@@ -275,8 +275,7 @@ public class AdminController {
     if (saved == null || saved.getId() <= 0) {
       return ResponseEntity.ok(new ResponseError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Can't save room"));
     }
-    dto = roomMapperImpl.toDTO(saved);
-    return ResponseEntity.ok(new ResponseData(HttpStatus.NO_CONTENT.value(), "Success", dto));
+    return ResponseEntity.ok(new ResponseData(HttpStatus.NO_CONTENT.value(), "Success", null));
   }
 
   // Tạo showtime.
@@ -318,5 +317,50 @@ public class AdminController {
     dto = showtimeMapperImpl.toDTO(saved);
 
     return ResponseEntity.ok(new ResponseData(HttpStatus.NO_CONTENT.value(), "Success", dto));
+  }
+
+  @Transactional
+  @PatchMapping(value = "/showtimes/{id}")
+  public ResponseEntity<ResponseData> updateShowtime(@PathVariable(name = "id") Integer id, @RequestBody ShowtimeDTO dto) {
+    /*
+    request-body: {
+      movie: {id: Integer},
+      room: {id: Integer},
+      date: Date,
+      startTime: Time,
+      endTime: Time
+    }
+    */
+
+
+    Showtime showtime = showtimeService.getShowtimeByIdOrElseThrow(id);
+
+    if (dto.getMovie() != null) {
+      showtime.setMovie(movieService.findMovieByIdOrElseThrow(dto.getMovie().getId()));
+    }
+    if (dto.getRoom() != null) {
+      showtime.setRoom(roomService.getRoomByIdOrElseThrow(dto.getRoom().getId()));
+    }
+    if (dto.getDate() != null) {
+      showtime.setDate(dto.getDate());
+    }
+    if (dto.getStartTime() != null) {
+      showtime.setStartTime(dto.getStartTime());
+    }
+    if (dto.getEndTime() != null) {
+      showtime.setEndTime(dto.getEndTime());
+    }
+
+    Showtime saved = showtimeService.save(showtime);
+    if (saved == null || saved.getId() <= 0)
+      return ResponseEntity.ok(new ResponseError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Can't save showtime"));
+    return ResponseEntity.ok(new ResponseData(HttpStatus.NO_CONTENT.value(), "Success", null));
+  }
+
+  @DeleteMapping(value = "/showtimes/{id}")
+  public ResponseEntity<ResponseData> deleteShowtime(@PathVariable Integer id) {
+    Showtime showtime = showtimeService.getShowtimeByIdOrElseThrow(id);
+    showtimeService.delete(showtime);
+    return ResponseEntity.ok(new ResponseData(HttpStatus.NO_CONTENT.value(), "Success", null));
   }
 }

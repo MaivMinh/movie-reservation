@@ -46,6 +46,7 @@ public class JwtTokenValidatorFilter extends OncePerRequestFilter {
         Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(accessToken.toString()).getBody();
         String username = claims.get("username").toString();
         String roles = String.valueOf(claims.get("roles"));
+        System.out.println(roles);
         Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, AuthorityUtils.commaSeparatedStringToAuthorityList(roles));
         //Thêm authenticated object vào SecurityContextHolder.
         SecurityContextHolder.getContext().setAuthentication(authentication);

@@ -24,4 +24,7 @@ public class Room {
 
   @OneToMany(mappedBy = "room", cascade = CascadeType.REMOVE)
   private Set<Showtime> showtimes;
+
+  @OneToMany(mappedBy = "room", cascade = CascadeType.REMOVE, targetEntity = Seat.class)
+  private Set<Seat> seats;
 }

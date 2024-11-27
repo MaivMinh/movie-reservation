@@ -54,5 +54,6 @@ public class ShowtimeController {
     ShowtimeDTO showtimeDTO = showtimeService.getShowtimeDTOByIdOrElseThrow(id);
     return ResponseEntity.ok(new ResponseData(HttpStatus.OK.value(), "Success", showtimeDTO));
   }
+  
 
 }

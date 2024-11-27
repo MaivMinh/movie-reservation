@@ -92,6 +92,7 @@ public class AuthController {
 
   @PostMapping("/login")
   public ResponseEntity<ResponseData> login(@RequestBody LoginRequest loginRequest) {
+    System.out.println("Login request: " + loginRequest.username());
     String jwt = "";
     String refreshToken = "";
     Authentication authentication = UsernamePasswordAuthenticationToken.unauthenticated(loginRequest.username(), loginRequest.password());
@@ -130,10 +131,10 @@ public class AuthController {
     }
 
     // Thống nhất là sẽ chỉ gửi access-token và refresh-token ở cookies. access-token sẽ có thời hạn là 7 days, refresh-token là 15 days.
-    ResponseCookie refreshCookie = ResponseCookie.from("refresh_token").value(refreshToken).httpOnly(true).path("/api/v1").maxAge(30 * 24 * 3600L).build();
+    ResponseCookie refreshCookie = ResponseCookie.from("refresh_token").value(refreshToken).httpOnly(true).path("/").maxAge(30 * 24 * 3600L).build();
 
     // Thống nhất không gửi dto.
-    return ResponseEntity.ok().header("Set-Cookie", refreshCookie.toString()).body(new ResponseData(HttpStatus.OK.value(), "Login successfully", new LoginResponse("Bearer", jwt, new Timestamp(new Date().getTime() + 7 * 24 * 3600 * 1000L))));
+    return ResponseEntity.ok().header("Set-Cookie", refreshCookie.toString()).body(new ResponseData(HttpStatus.OK.value(), "Login successfully", Map.of("token_type", "Bearer", "access_token", jwt, "expires_in", new Timestamp(new Date().getTime() + 7 * 24 * 3600 * 1000L))));
   }
 
   // Tạo ra API để refresh access token.
@@ -187,12 +188,36 @@ public class AuthController {
 
       // Update lại jwt ở Tokens trong DB.
       token.setJwt(jwt);
-      return ResponseEntity.ok(new ResponseData(HttpStatus.OK.value(), "Issued a new access token!", new LoginResponse("Bearer", jwt, new Timestamp(new Date().getTime() + 7 * 24 * 3600 * 1000L))));
+      return ResponseEntity.ok(new ResponseData(HttpStatus.OK.value(), "Issued a new access token!", Map.of("token_type", "Bearer", "access_token", jwt, "expires_in", new Timestamp(new Date().getTime() + 7 * 24 * 3600 * 1000L))));
     }
     // 2. Xét trường hợp là hết hạn, xoá refresh token dưới DB rồi sau đó trả về response yêu cầu Client đăng nhập lại.
     Token deletedToken = tokenService.deleteByToken(refreshToken.toString());
     // deleted successfully.
     return ResponseEntity.status(HttpStatus.OK).body(new ResponseError(HttpStatus.UNAUTHORIZED.value(), "refresh token is expired, please login again!"));
+  }
+
+  @GetMapping("/logout")
+  public ResponseEntity<ResponseData> logout(HttpServletRequest request) {
+    StringBuilder refreshToken = new StringBuilder();
+    Cookie[] cookies = request.getCookies();
+    for (Cookie cookie : cookies) {
+      if (cookie.getName().equals("refresh_token")) {
+        // Tìm thấy được refresh_token.
+        refreshToken.append(cookie.getValue());
+        break;
+      }
+    }
+    Token token = tokenService.findByToken(refreshToken.toString());
+    if (token == null) {
+      return ResponseEntity.status(HttpStatus.OK).body(new ResponseError(HttpStatus.BAD_REQUEST.value(), "Can't logout!"));
+    }
+    // Nếu tìm thấy token thì xoá access token có liên quan.
+    String value = request.getHeader("Authorization");
+    String accessToken = value.substring(7);
+    if (accessToken.isEmpty() || token.getToken().isEmpty() || !accessToken.equals(token.getJwt()))  return ResponseEntity.ok(new ResponseError(HttpStatus.BAD_REQUEST.value(), "Can't logout!"));
+
+    tokenService.delete(token);
+    return ResponseEntity.ok(new ResponseData(HttpStatus.OK.value(), "Logout successfully!", null));
   }
 
   @PostMapping(value = "/verify")
@@ -208,7 +233,7 @@ public class AuthController {
               .setIssuedAt(new Date())
               .setExpiration(new Date((new Date()).getTime() + 7 * 24 * 3600 * 1000L))
               .signWith(secretKey).compact();
-      return ResponseEntity.ok(new ResponseData(HttpStatus.OK.value(), "Login successfully", new LoginResponse("Bearer", jwt, new Timestamp(new Date().getTime() + 3 * 24 * 3600 * 1000L)))); // Cho thời gian của đăng nhập bằng Social ít hơn thông thường.
+      return ResponseEntity.ok(new ResponseData(HttpStatus.OK.value(), "Login successfully", Map.of("token_type", "Bearer", "access_token", jwt, "expires_in", new Timestamp(new Date().getTime() + 3 * 24 * 3600 * 1000L)))); // Cho thời gian của đăng nhập bằng Social ít hơn thông thường.
     } catch (BadCredentialsException e) {
       return ResponseEntity.ok(new ResponseError(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
     }

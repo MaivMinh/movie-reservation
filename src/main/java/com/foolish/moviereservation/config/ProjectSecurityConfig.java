@@ -52,6 +52,7 @@ public class ProjectSecurityConfig {
 
   @Bean
   SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.cors(config -> config.disable());
     http.sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
     http.csrf(AbstractHttpConfigurer::disable);
     http.addFilterAfter(new JwtTokenValidatorFilter(), ExceptionTranslationFilter.class); // Nếu để phía sau ExceptionTranslation thì nhiều trường hợp không thể catch đúng lỗi.
@@ -90,7 +91,7 @@ public class ProjectSecurityConfig {
     return PasswordEncoderFactories.createDelegatingPasswordEncoder();
   }
 
-  @Bean
+  //@Bean
   public WebMvcConfigurer corsConfigurer() {
     return new WebMvcConfigurer() {
       @Override

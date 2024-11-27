@@ -1,13 +1,14 @@
 package com.foolish.moviereservation.controller;
 
 import com.foolish.moviereservation.DTOs.CinemaDTO;
-import com.foolish.moviereservation.DTOs.MovieDTO;
+import com.foolish.moviereservation.DTOs.SeatDTO;
 import com.foolish.moviereservation.DTOs.ShowtimeDTO;
 import com.foolish.moviereservation.mapper.CinemaMapperImpl;
 import com.foolish.moviereservation.mapper.RoomMapperImpl;
 import com.foolish.moviereservation.mapper.ShowtimeMapperImpl;
 import com.foolish.moviereservation.model.*;
 import com.foolish.moviereservation.records.UpdatedMovie;
+import com.foolish.moviereservation.model.Seat;
 import com.foolish.moviereservation.response.ResponseData;
 import com.foolish.moviereservation.response.ResponseError;
 import com.foolish.moviereservation.service.*;
@@ -20,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +43,7 @@ public class AdminController {
   private final RoomMapperImpl roomMapperImpl;
   private final ShowtimeService showtimeService;
   private final ShowtimeMapperImpl showtimeMapperImpl;
+  private final SeatService seatService;
 
 
   // Phương thức tạo ra một phim mới.
@@ -361,6 +362,63 @@ public class AdminController {
   public ResponseEntity<ResponseData> deleteShowtime(@PathVariable Integer id) {
     Showtime showtime = showtimeService.getShowtimeByIdOrElseThrow(id);
     showtimeService.delete(showtime);
+    return ResponseEntity.ok(new ResponseData(HttpStatus.NO_CONTENT.value(), "Success", null));
+  }
+
+
+  @PostMapping(value = "/seats")
+  public ResponseEntity<ResponseData> createSeat(@RequestBody SeatDTO dto) {
+    Seat seat = new Seat();
+    seat.setType(dto.getType());
+    seat.setPrice(dto.getPrice());
+    seat.setSeatRow(dto.getSeatRow());
+    seat.setSeatNumber(dto.getSeatNumber());
+    seat.setStatus(dto.getStatus());
+    Room room = roomService.getRoomByIdOrElseThrow(dto.getRoomId());
+    seat.setRoom(room);
+    Seat saved = seatService.save(seat);
+    if (saved == null || saved.getId() <= 0) {
+      return ResponseEntity.ok(new ResponseError(HttpStatus.BAD_REQUEST.value(), "Can't save seat"));
+    }
+    dto.setId(saved.getId());
+    return ResponseEntity.ok(new ResponseData(HttpStatus.OK.value(), "Success", dto));
+  }
+
+  @Transactional
+  @PatchMapping(value = "/seats/{id}")
+  public ResponseEntity<ResponseData> updateSeat(@PathVariable Integer id, @RequestBody SeatDTO dto) {
+    Seat seat = seatService.getSeatByIdOrElseThrow(id);
+    if (StringUtils.hasText(dto.getType())) {
+      seat.setType(dto.getType());
+    }
+    if (dto.getPrice() != null) {
+      seat.setPrice(dto.getPrice());
+    }
+    if (StringUtils.hasText(dto.getSeatRow())) {
+      seat.setSeatRow(dto.getSeatRow());
+    }
+    if (dto.getSeatNumber() != null) {
+      seat.setSeatNumber(dto.getSeatNumber());
+    }
+    if (dto.getStatus() != null) {
+      seat.setStatus(dto.getStatus());
+    }
+    if (dto.getRoomId() != null) {
+      seat.setRoom(roomService.getRoomByIdOrElseThrow(dto.getRoomId()));
+    }
+    Seat saved = seatService.save(seat);
+    if (saved == null || saved.getId() <= 0) {
+      return ResponseEntity.ok(new ResponseError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Can't save seat"));
+    }
+    return ResponseEntity.ok(new ResponseData(HttpStatus.NO_CONTENT.value(), "Success", null));
+  }
+
+
+  @Transactional
+  @DeleteMapping(value = "/seats/{id}")
+  public ResponseEntity<ResponseData> deleteSeat(@PathVariable Integer id) {
+    Seat seat = seatService.getSeatByIdOrElseThrow(id);
+    seatService.delete(seat);
     return ResponseEntity.ok(new ResponseData(HttpStatus.NO_CONTENT.value(), "Success", null));
   }
 }

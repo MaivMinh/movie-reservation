@@ -67,7 +67,7 @@ public class MovieController {
   public ResponseEntity<ResponseData> getMovieDetails(@PathVariable Integer id) {
     /*
     * Response:
-    * {
+    {
       "movie": {
           "movie_id": Integer,
           "name": String,
@@ -79,7 +79,7 @@ public class MovieController {
           * voteAverage: Integer,
       },
       "genres": [],
-    * */
+    */
 
     Movie movie = movieService.findMovieByIdOrElseThrow(id);
     List<Genre> genres = movie.getMovieGenres().stream().map(MovieGenre::getGenre).toList();

@@ -11,6 +11,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class TokenService {
   private final TokenRepo repo;
+  private final TokenRepo tokenRepo;
 
   public Token save(Token token) {
     if (token == null)  return null;
@@ -31,5 +32,9 @@ public class TokenService {
   public Token deleteByToken(String token) {
     if (token == null) throw new IllegalArgumentException("Token cannot be null");
     return repo.deleteByToken(token);
+  }
+
+  public void delete(Token token) {
+    tokenRepo.delete(token);
   }
 }
